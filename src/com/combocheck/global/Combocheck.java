@@ -9,6 +9,11 @@ import com.combocheck.ui.CombocheckFrame;
  * @author Andrew Wilder
  */
 public class Combocheck {
+	
+	// Program constants
+	public static final String PROGRAM_TITLE = "Combocheck";
+	public static final int PROGRAM_WIDTH = 900;
+	public static final int PROGRAM_HEIGHT = 700;
 
 	/**
 	 * Create the Combocheck frame and initialize UI elements.
@@ -19,15 +24,16 @@ public class Combocheck {
 	public static void main(String[] args) {
 		
 		// Determine if command line arguments were passed
-		if(args.length == 1) {
+		if(args.length < 2) {
 			
 			// Normal invocation of Combocheck UI
 			new CombocheckFrame().setVisible(true);
 			
 		} else {
 			
-			// TODO
-			
+			for(String s : args) {
+				System.out.println(s);
+			}
 		}
 	}
 }
