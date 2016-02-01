@@ -1,5 +1,7 @@
 package com.combocheck.global;
 
+import java.util.Collection;
+
 import com.combocheck.ui.CombocheckFrame;
 
 /**
@@ -10,10 +12,13 @@ import com.combocheck.ui.CombocheckFrame;
  */
 public class Combocheck {
 	
-	// Program constants
+	/** Combocheck constants */
 	public static final String PROGRAM_TITLE = "Combocheck";
 	public static final int PROGRAM_WIDTH = 900;
 	public static final int PROGRAM_HEIGHT = 700;
+	
+	/** Combocheck globals */
+	public static Collection<FilePair> FilePairs = null;
 
 	/**
 	 * Create the Combocheck frame and initialize UI elements.

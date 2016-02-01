@@ -1,7 +1,6 @@
 package com.combocheck.ui.scan;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 
 /**
  * This class represents the panel in which the user selects files and folders
@@ -9,11 +8,19 @@ import javax.swing.JPanel;
  * 
  * @author Andrew Wilder
  */
-public class ScanPanel extends JPanel {
+public class ScanPanel extends JSplitPane {
 
+	/**
+	 * Construct the scan panel and its components
+	 */
 	public ScanPanel() {
 		
-		// TODO
-		add(new JLabel("This is the scan panel."));
+		// Split vertically, continuous layout when resizing
+		super(JSplitPane.HORIZONTAL_SPLIT, true);
+		
+		// Add the UI components
+		ScanEntryListPanel selp = new ScanEntryListPanel();
+		setLeftComponent(selp);
+		setRightComponent(new ScanControlPanel(selp.getEntries()));
 	}
 }

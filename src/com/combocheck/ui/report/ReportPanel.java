@@ -11,6 +11,9 @@ import javax.swing.JPanel;
  */
 public class ReportPanel extends JPanel {
 
+	/**
+	 * Construct the report panel and its components
+	 */
 	public ReportPanel() {
 		
 		// TODO

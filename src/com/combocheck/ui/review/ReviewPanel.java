@@ -11,6 +11,9 @@ import javax.swing.JPanel;
  */
 public class ReviewPanel extends JPanel {
 
+	/**
+	 * Construct the review panel and its components
+	 */
 	public ReviewPanel() {
 		
 		// TODO
