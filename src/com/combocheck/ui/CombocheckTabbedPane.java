@@ -16,7 +16,7 @@ import com.combocheck.ui.scan.ScanPanel;
  * @author Andrew Wilder
  */
 public class CombocheckTabbedPane extends JTabbedPane {
-
+	
 	/**
 	 * Construct the main tabbed pane. This is also where the size of the main
 	 * application's frame is set indirectly due to JFrame packing.
@@ -24,10 +24,14 @@ public class CombocheckTabbedPane extends JTabbedPane {
 	public CombocheckTabbedPane() {
 		
 		// Set the size of the tabbed pane
-		setPreferredSize(new Dimension(Combocheck.PROGRAM_WIDTH, Combocheck.PROGRAM_HEIGHT));
+		setPreferredSize(new Dimension(Combocheck.PROGRAM_WIDTH,
+				Combocheck.PROGRAM_HEIGHT));
 		
 		// Add the tabs
-		addTab("Scan", new ScanPanel());
+		ScanPanel sc = new ScanPanel();
+		addTab("Scan", sc);
+		sc.setDividerLocation((int) (ScanPanel.DIVIDER_RATIO *
+				Combocheck.PROGRAM_WIDTH));
 		addTab("Review", new ReviewPanel());
 		addTab("Report", new ReportPanel());
 	}

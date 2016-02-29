@@ -23,9 +23,17 @@ public class ScanEntry {
 	 *   SingleFile: One file
 	 */
 	public static enum ScanEntryType {
-		Normal,
-		OldSemester,
-		SingleFile
+		Normal("Normal scan"),
+		OldSemester("Old semester"),
+		SingleFile("Single file");
+		
+		private String msg;
+		private ScanEntryType(String msg) {
+			this.msg = msg;
+		}
+		public String toString() {
+			return msg;
+		}
 	}
 	
 	/** The path to locate files for this scan entry */

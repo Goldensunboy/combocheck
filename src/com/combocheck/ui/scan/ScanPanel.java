@@ -9,18 +9,22 @@ import javax.swing.JSplitPane;
  * @author Andrew Wilder
  */
 public class ScanPanel extends JSplitPane {
+	
+	/** Constants for the scan panel */
+	public static final double DIVIDER_RATIO = 0.3;
 
 	/**
 	 * Construct the scan panel and its components
 	 */
 	public ScanPanel() {
 		
-		// Split vertically, continuous layout when resizing
+		// Configure split pane properties
 		super(JSplitPane.HORIZONTAL_SPLIT, true);
+		setDividerSize(5);
 		
 		// Add the UI components
 		ScanEntryListPanel selp = new ScanEntryListPanel();
 		setLeftComponent(selp);
-		setRightComponent(new ScanControlPanel(selp.getEntries()));
+		setRightComponent(new ScanControlPanel(selp));
 	}
 }

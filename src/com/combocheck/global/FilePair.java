@@ -69,4 +69,12 @@ public class FilePair {
 	public int hashCode() {
 		return file1.hashCode() ^ file2.hashCode();
 	}
+	
+	/**
+	 * Names of the files
+	 */
+	@Override
+	public String toString() {
+		return "{" + file1 + ", " + file2 + "}";
+	}
 }

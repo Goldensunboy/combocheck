@@ -2,6 +2,8 @@ package com.combocheck.global;
 
 import java.util.Collection;
 
+import com.combocheck.algo.Algorithm;
+import com.combocheck.algo.MossAlgorithm;
 import com.combocheck.ui.CombocheckFrame;
 
 /**
@@ -19,6 +21,9 @@ public class Combocheck {
 	
 	/** Combocheck globals */
 	public static Collection<FilePair> FilePairs = null;
+	public static final Algorithm algorithms[] = {
+		new MossAlgorithm()
+	};
 
 	/**
 	 * Create the Combocheck frame and initialize UI elements.
@@ -40,5 +45,12 @@ public class Combocheck {
 				System.out.println(s);
 			}
 		}
+	}
+	
+	/**
+	 * Perform the selected scans over the file pairs
+	 */
+	public static void performScans() {
+		// TODO
 	}
 }
