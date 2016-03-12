@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.regex.Pattern;
 
@@ -18,6 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.border.Border;
 
+import com.combocheck.global.Combocheck;
 import com.combocheck.global.FilePair;
 
 /**
@@ -141,7 +143,11 @@ public class ScanEntryListPanel extends JScrollPane {
 				folders.add(new File(se.getPath()));
 				do {
 					File dir = folders.pollFirst();
-					for(File f : dir.listFiles()) {
+					File subFiles[] = dir.listFiles();
+					if(subFiles == null) {
+						continue;
+					}
+					for(File f : subFiles) {
 						if(f.isDirectory()) {
 							folders.add(f);
 						} else if(Pattern.matches(se.getRegex(), f.getName())) {
@@ -165,6 +171,16 @@ public class ScanEntryListPanel extends JScrollPane {
 			}
 		}
 		
+		// Set the globals in Combocheck for preprocessing-based algos
+		if(pairSet.size() > 0) {
+			Combocheck.FileList = left;
+			Combocheck.FilePairs = pairSet;
+			Combocheck.FileOrdering = new HashMap<Integer, FilePair>();
+			int n = 0;
+			for(FilePair fp : Combocheck.FilePairs) {
+				Combocheck.FileOrdering.put(n++, fp);
+			}
+		}
 		return pairSet;
 	}
 }

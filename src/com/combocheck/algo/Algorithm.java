@@ -1,6 +1,11 @@
 package com.combocheck.algo;
 
+import java.util.HashMap;
+
 import javax.swing.JComponent;
+import javax.swing.JPanel;
+
+import com.combocheck.global.FilePair;
 
 /**
  * This interface provides the guarantee of particular comparison functions
@@ -8,26 +13,44 @@ import javax.swing.JComponent;
  *
  * @author Andrew Wilder
  */
-public interface Algorithm {
+public abstract class Algorithm {
+	
+	/** Whether or not this algorithm is enabled */
+	protected boolean enabled;
+	private static JComponent settingsDialog = new JPanel();
+	protected HashMap<FilePair, Integer> fileScores = new HashMap<FilePair,
+			Integer>();
 	
 	/**
-	 * Return the settings dialog for this algorithm
-	 * @return
+	 * Return the components for this algorithm's settings dialog
 	 */
-	public abstract JComponent getSettingsDialog();
+	public JComponent getSettingsDialog() {
+		return settingsDialog;
+	}
+
+	/**
+	 * Return the enabled status for this algorithm
+	 */
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	/**
+	 * Set the enabled status for this algorithm
+	 */
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 	
 	/**
-	 * Return the static value of whether this algorithm is enabled
+	 * @return The mapping of file pairs onto analysis scores
 	 */
-	public abstract boolean isEnabled();
-	
-	/**
-	 * Set the enabled value for this Algorithm
-	 */
-	public abstract void setEnabled(boolean enabled);
+	public HashMap<FilePair, Integer> getFileScores() {
+		return fileScores;
+	}
 	
 	/**
 	 * Analyze the file pairs using this algorithm
 	 */
-	public abstract void analyzePairs();
+	public abstract void analyzeFiles();
 }

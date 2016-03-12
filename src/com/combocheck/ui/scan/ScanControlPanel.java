@@ -84,15 +84,6 @@ public class ScanControlPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				
-				// Generate pairs of files
-				Collection<FilePair> filePairs = scanEntryListPanel.genPairs();
-				if(filePairs.size() == 0) {
-					JOptionPane.showMessageDialog(ScanControlPanel.this,
-							"No file pairs found", "Could not start scan",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				
 				// Make sure at least one algorithm is selected
 				boolean selected = false;
 				for(Algorithm a : Combocheck.algorithms) {
@@ -108,8 +99,16 @@ public class ScanControlPanel extends JPanel {
 					return;
 				}
 				
+				// Generate pairs of files
+				Collection<FilePair> filePairs = scanEntryListPanel.genPairs();
+				if(filePairs.size() == 0) {
+					JOptionPane.showMessageDialog(ScanControlPanel.this,
+							"No file pairs found", "Could not start scan",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
 				// Initiate the scan process
-				Combocheck.FilePairs = filePairs;
 				Combocheck.performScans();
 			}
 		});

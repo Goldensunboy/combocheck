@@ -1,5 +1,7 @@
 package com.combocheck.ui.scan;
 
+import java.io.File;
+
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,6 +21,10 @@ public class RegexFileChooser extends JFileChooser {
 	 * Construct a new regex file chooser
 	 */
 	public RegexFileChooser(ScanEntry.ScanEntryType type) {
+		
+		// TODO remove this for production
+		File dir = new File("/home/andrew/Documents/Spring_2016/CS 6999/combocheck/test");
+		setCurrentDirectory(dir);
 		
 		// Set JFileChooser properties
 		setDialogTitle("Select a folder (" + type + ")");

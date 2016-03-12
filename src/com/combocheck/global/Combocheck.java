@@ -1,8 +1,10 @@
 package com.combocheck.global;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 import com.combocheck.algo.Algorithm;
+import com.combocheck.algo.EditDistanceAlgorithm;
 import com.combocheck.algo.MossAlgorithm;
 import com.combocheck.ui.CombocheckFrame;
 
@@ -20,10 +22,23 @@ public class Combocheck {
 	public static final int PROGRAM_HEIGHT = 700;
 	
 	/** Combocheck globals */
+	// List of all file pairs
 	public static Collection<FilePair> FilePairs = null;
+	
+	// List of all files
+	public static Collection<String> FileList = null;
+	
+	// Mapping of ints onto pairs for array-based optimizations
+	public static HashMap<Integer, FilePair> FileOrdering = null;
+	
+	// List of algorithms
 	public static final Algorithm algorithms[] = {
-		new MossAlgorithm()
+		new MossAlgorithm(),
+		new EditDistanceAlgorithm()
 	};
+	
+	// How many threads to run concurrently for analysis
+	public static int ThreadCount = 8;
 
 	/**
 	 * Create the Combocheck frame and initialize UI elements.
@@ -51,6 +66,11 @@ public class Combocheck {
 	 * Perform the selected scans over the file pairs
 	 */
 	public static void performScans() {
-		// TODO
+		for(Algorithm a : algorithms) {
+			if(a.isEnabled()) {
+				a.analyzeFiles();
+			}
+		}
+		// TODO change view to review panel
 	}
 }
