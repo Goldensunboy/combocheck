@@ -17,6 +17,9 @@ public class MossAlgorithm extends Algorithm {
 		// TODO construct settings dialog
 	}
 	
+	/**
+	 * Get the String representation of this algorithm for JComponents
+	 */
 	@Override
 	public String toString() {
 		return "Moss";

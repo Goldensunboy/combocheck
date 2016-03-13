@@ -4,7 +4,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collection;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -100,7 +100,8 @@ public class ScanControlPanel extends JPanel {
 				}
 				
 				// Generate pairs of files
-				Collection<FilePair> filePairs = scanEntryListPanel.genPairs();
+				scanEntryListPanel.genPairs();
+				List<FilePair> filePairs = Combocheck.FilePairs;
 				if(filePairs.size() == 0) {
 					JOptionPane.showMessageDialog(ScanControlPanel.this,
 							"No file pairs found", "Could not start scan",

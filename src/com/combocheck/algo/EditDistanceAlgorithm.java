@@ -3,7 +3,6 @@ package com.combocheck.algo;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.combocheck.algo.Algorithm;
@@ -25,6 +24,9 @@ public class EditDistanceAlgorithm extends Algorithm {
 		// TODO construct settings dialog
 	}
 	
+	/**
+	 * Get the String representation of this algorithm for JComponents
+	 */
 	@Override
 	public String toString() {
 		return "Edit Distance";
@@ -35,23 +37,31 @@ public class EditDistanceAlgorithm extends Algorithm {
 	 */
 	@Override
 	public void analyzeFiles() {
-		// TODO if DLL exists, use JNI version
+		int[] distanceArray;
 		
-		// Java implementation
-		int[] distanceArray = new int[Combocheck.FilePairs.size()];
-		Thread[] threadPool = new Thread[Combocheck.ThreadCount];
-		for(int i = 0; i < Combocheck.ThreadCount; ++i) {
-			threadPool[i] = new EditDistanceThread(distanceArray, i);
-			threadPool[i].start();
-		}
-		try {
+		// Use the JNI implementation if it is available
+		if(JNIFunctions.isAvailable()) {
+			distanceArray = JNIFunctions.JNIEditDistance();
+		} else {
+			distanceArray = new int[Combocheck.FilePairs.size()];
+			
+			// Java implementation
+			Thread[] threadPool = new Thread[Combocheck.ThreadCount];
 			for(int i = 0; i < Combocheck.ThreadCount; ++i) {
-				threadPool[i].join();
+				threadPool[i] = new EditDistanceThread(distanceArray, i);
+				threadPool[i].start();
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return;
+			try {
+				for(int i = 0; i < Combocheck.ThreadCount; ++i) {
+					threadPool[i].join();
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				return;
+			}
 		}
+		
+		// Construct the pair scores mapping
 		fileScores = new HashMap<FilePair, Integer>();
 		for(int i = 0; i < distanceArray.length; ++i) {
 			fileScores.put(Combocheck.FileOrdering.get(i), distanceArray[i]);

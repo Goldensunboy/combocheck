@@ -2,9 +2,11 @@ package com.combocheck.global;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import com.combocheck.algo.Algorithm;
 import com.combocheck.algo.EditDistanceAlgorithm;
+import com.combocheck.algo.JNIFunctions;
 import com.combocheck.algo.MossAlgorithm;
 import com.combocheck.ui.CombocheckFrame;
 
@@ -23,7 +25,7 @@ public class Combocheck {
 	
 	/** Combocheck globals */
 	// List of all file pairs
-	public static Collection<FilePair> FilePairs = null;
+	public static List<FilePair> FilePairs = null;
 	
 	// List of all files
 	public static Collection<String> FileList = null;
@@ -60,17 +62,29 @@ public class Combocheck {
 				System.out.println(s);
 			}
 		}
+		JNIFunctions.isAvailable(); // Statically pre-loads JNI library
 	}
 	
 	/**
 	 * Perform the selected scans over the file pairs
 	 */
 	public static void performScans() {
+		//boolean b1 = true, b2 = true;
+		//if(b1 && b2) return;
+		long start_time = System.nanoTime();
 		for(Algorithm a : algorithms) {
 			if(a.isEnabled()) {
 				a.analyzeFiles();
 			}
 		}
+		long end_time = System.nanoTime();
+		double difference = (end_time - start_time)/1e9;
+		HashMap<FilePair, Integer> map = algorithms[0].getFileScores();
+		for(FilePair fp : FilePairs) {
+			System.out.println(fp);
+			System.out.println(map.get(fp));
+		}
+		System.out.println("Analysis took: " + difference + " seconds");
 		// TODO change view to review panel
 	}
 }

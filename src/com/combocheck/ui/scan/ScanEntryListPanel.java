@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
@@ -19,6 +21,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.border.Border;
 
+import com.combocheck.algo.JNIFunctions;
 import com.combocheck.global.Combocheck;
 import com.combocheck.global.FilePair;
 
@@ -120,7 +123,7 @@ public class ScanEntryListPanel extends JScrollPane {
 	 * Generate the file pairs based on the entries provided
 	 * @return Collection of file pairs
 	 */
-	public Collection<FilePair> genPairs() {
+	public void genPairs() {
 		
 		/* Collections used by this generation algorithm
 		 * All matched files go in the left set. Regular scans also go in the
@@ -174,13 +177,38 @@ public class ScanEntryListPanel extends JScrollPane {
 		// Set the globals in Combocheck for preprocessing-based algos
 		if(pairSet.size() > 0) {
 			Combocheck.FileList = left;
-			Combocheck.FilePairs = pairSet;
+			Combocheck.FilePairs = new ArrayList<FilePair>();
 			Combocheck.FileOrdering = new HashMap<Integer, FilePair>();
 			int n = 0;
-			for(FilePair fp : Combocheck.FilePairs) {
+			for(FilePair fp : pairSet) {
 				Combocheck.FileOrdering.put(n++, fp);
+				Combocheck.FilePairs.add(fp);
+			}
+			
+			// Set the metadata for the JNIalgo library
+			if(JNIFunctions.isAvailable()) {
+				Map<String, Integer> reverseMap =
+						new HashMap<String, Integer>();
+				int index = 0;
+				for(String file : Combocheck.FileList) {
+					reverseMap.put(file, index++);
+				}
+				List<Integer> filePairList = new ArrayList<Integer>();
+				for(FilePair fp : pairSet) {
+					filePairList.add(reverseMap.get(fp.getFile1()));
+					filePairList.add(reverseMap.get(fp.getFile2()));
+				}
+				int[] filePairsArray = new int[filePairList.size()];
+				for(int i = 0; i < filePairList.size(); ++i) {
+					filePairsArray[i] = filePairList.get(i);
+				}
+				String[] fileListArray = new String[Combocheck.FileList.size()];
+				index = 0;
+				for(String filename : Combocheck.FileList) {
+					fileListArray[index++] = filename;
+				}
+				JNIFunctions.SetJNIFilePairData(fileListArray, filePairsArray);
 			}
 		}
-		return pairSet;
 	}
 }
