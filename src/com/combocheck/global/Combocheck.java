@@ -1,8 +1,13 @@
 package com.combocheck.global;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.combocheck.algo.Algorithm;
 import com.combocheck.algo.EditDistanceAlgorithm;
@@ -24,6 +29,8 @@ public class Combocheck {
 	public static final int PROGRAM_HEIGHT = 700;
 	
 	/** Combocheck globals */
+	private static CombocheckFrame frame = null;
+	
 	// List of all file pairs
 	public static List<FilePair> FilePairs = null;
 	
@@ -54,7 +61,8 @@ public class Combocheck {
 		if(args.length < 2) {
 			
 			// Normal invocation of Combocheck UI
-			new CombocheckFrame().setVisible(true);
+			frame = new CombocheckFrame();
+			frame.setVisible(true);
 			
 		} else {
 			
@@ -69,22 +77,31 @@ public class Combocheck {
 	 * Perform the selected scans over the file pairs
 	 */
 	public static void performScans() {
-		//boolean b1 = true, b2 = true;
-		//if(b1 && b2) return;
-		long start_time = System.nanoTime();
 		for(Algorithm a : algorithms) {
 			if(a.isEnabled()) {
 				a.analyzeFiles();
 			}
 		}
-		long end_time = System.nanoTime();
-		double difference = (end_time - start_time)/1e9;
-		HashMap<FilePair, Integer> map = algorithms[0].getFileScores();
-		for(FilePair fp : FilePairs) {
-			System.out.println(fp);
-			System.out.println(map.get(fp));
+		HashMap<FilePair, Integer> map = algorithms[1].getFileScores();
+		//System.out.println(map.size());
+		List<Map.Entry<FilePair, Integer>> scores = new ArrayList<Map.Entry<FilePair, Integer>>(map.entrySet());
+		Collections.sort(scores, new Comparator<Map.Entry<FilePair, Integer>>() {
+			@Override
+			public int compare(Entry<FilePair, Integer> arg0,
+					Entry<FilePair, Integer> arg1) {
+				return arg0.getValue() - arg1.getValue();
+			}
+		});
+		int i = 0;
+		for(Map.Entry<FilePair, Integer> e : scores) {
+			System.out.println("Pair " + i++ + ":");
+			System.out.println("\t" + e.getKey().getFile1());
+			System.out.println("\t" + e.getKey().getFile2());
+			System.out.println("\tedcheck: " + e.getValue());
 		}
-		System.out.println("Analysis took: " + difference + " seconds");
+		
 		// TODO change view to review panel
+		
+		frame.getTabbedPane().getScanPanel().getScanControlPanel().enableScanButton();
 	}
 }

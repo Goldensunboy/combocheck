@@ -28,6 +28,7 @@ public class ScanControlPanel extends JPanel {
 
 	/** Global scan entry list panel for buttons */
 	private static ScanEntryListPanel scanEntryListPanel;
+	private JButton scanButton;
 	
 	/**
 	 * Construct a new scan control panel
@@ -79,7 +80,7 @@ public class ScanControlPanel extends JPanel {
 		add(algorithmPanel);
 		
 		// Add the scan button
-		JButton scanButton = new JButton("Start scan");
+		scanButton = new JButton("Start scan");
 		scanButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -110,10 +111,18 @@ public class ScanControlPanel extends JPanel {
 				}
 				
 				// Initiate the scan process
+				setEnabled(false);
 				Combocheck.performScans();
 			}
 		});
 		add(scanButton);
+	}
+	
+	/**
+	 * Used to re-enable the scan button after a scan has completed
+	 */
+	public void enableScanButton() {
+		scanButton.setEnabled(true);
 	}
 	
 	/**

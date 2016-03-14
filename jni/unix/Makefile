@@ -27,3 +27,6 @@ clean :
 	@echo "[CL] Removing all compiled files"
 	@rm -f com_combocheck_algo_JNIFunctions.h $(OBJ) $(LIBNAME)
 
+rebuild : clean all
+	sudo mv libJNIalgo.so /usr/lib
+

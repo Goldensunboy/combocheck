@@ -17,7 +17,7 @@ public abstract class Algorithm {
 	
 	/** Whether or not this algorithm is enabled */
 	protected boolean enabled;
-	private static JComponent settingsDialog = new JPanel();
+	private JComponent settingsDialog = new JPanel();
 	protected HashMap<FilePair, Integer> fileScores = new HashMap<FilePair,
 			Integer>();
 	

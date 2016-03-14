@@ -21,11 +21,14 @@ int *file_pairs;
  * Frees the file metadata for JNIalgo, which is malloc'd
  */
 void free_metadata() {
+	// On init, file_count is zero due to being static
 	for(int i = 0; i < file_count; ++i) {
-		free(file_names + i);
+		free(file_names[i]);
 	}
-	free(file_names);
-	free(file_pairs);
+	if(file_count) {
+		free(file_names);
+		free(file_pairs);
+	}
 }
 
 // Set the file pair data for running algorithms

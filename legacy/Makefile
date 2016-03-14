@@ -3,7 +3,7 @@
 PROGNAME = combocheck
 SRC = $(wildcard *.c)
 OBJ = $(SRC:%.c=%.o)
-CFLAGS = -Wall -Werror -Wextra -std=gnu99 -pedantic -D _GNU_SOURCE
+CFLAGS = -Wall -Werror -Wextra -std=gnu99 -pedantic -D _GNU_SOURCE -O3
 LFLAGS = -pthread
 
 all : $(OBJ)

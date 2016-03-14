@@ -12,6 +12,10 @@ public class ScanPanel extends JSplitPane {
 	
 	/** Constants for the scan panel */
 	public static final double DIVIDER_RATIO = 0.3;
+	
+	/** Instances of UI components */
+	ScanEntryListPanel scanEntryListPanel = new ScanEntryListPanel();
+	ScanControlPanel scanControlPanel = new ScanControlPanel(scanEntryListPanel);
 
 	/**
 	 * Construct the scan panel and its components
@@ -23,8 +27,23 @@ public class ScanPanel extends JSplitPane {
 		setDividerSize(5);
 		
 		// Add the UI components
-		ScanEntryListPanel selp = new ScanEntryListPanel();
-		setLeftComponent(selp);
-		setRightComponent(new ScanControlPanel(selp));
+		setLeftComponent(scanEntryListPanel);
+		setRightComponent(scanControlPanel);
+	}
+	
+	/**
+	 * Getter for the instance of ScanEntryListPanel that this holds
+	 * @return
+	 */
+	public ScanEntryListPanel getScanEntryListPanel() {
+		return scanEntryListPanel;
+	}
+	
+	/**
+	 * Getter for the instance of ScanControlPanel that this holds
+	 * @return
+	 */
+	public ScanControlPanel getScanControlPanel() {
+		return scanControlPanel;
 	}
 }

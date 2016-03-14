@@ -17,6 +17,11 @@ import com.combocheck.ui.scan.ScanPanel;
  */
 public class CombocheckTabbedPane extends JTabbedPane {
 	
+	/** Instances of the panels */
+	private ScanPanel scanPanel = new ScanPanel();
+	private ReviewPanel reviewPanel = new ReviewPanel();
+	private ReportPanel reportPanel = new ReportPanel();
+	
 	/**
 	 * Construct the main tabbed pane. This is also where the size of the main
 	 * application's frame is set indirectly due to JFrame packing.
@@ -28,11 +33,34 @@ public class CombocheckTabbedPane extends JTabbedPane {
 				Combocheck.PROGRAM_HEIGHT));
 		
 		// Add the tabs
-		ScanPanel sc = new ScanPanel();
-		addTab("Scan", sc);
-		sc.setDividerLocation((int) (ScanPanel.DIVIDER_RATIO *
+		addTab("Scan", scanPanel);
+		scanPanel.setDividerLocation((int) (ScanPanel.DIVIDER_RATIO *
 				Combocheck.PROGRAM_WIDTH));
-		addTab("Review", new ReviewPanel());
-		addTab("Report", new ReportPanel());
+		addTab("Review", reviewPanel);
+		addTab("Report", reportPanel);
+	}
+	
+	/**
+	 * Getter for the instance of ScanPanel that this holds
+	 * @return
+	 */
+	public ScanPanel getScanPanel() {
+		return scanPanel;
+	}
+	
+	/**
+	 * Getter for the instance of ReviewPanel that this holds
+	 * @return
+	 */
+	public ReviewPanel getReviewPanel() {
+		return reviewPanel;
+	}
+	
+	/**
+	 * Getter for the instance of ReportPanel that this holds
+	 * @return
+	 */
+	public ReportPanel getReportPanel() {
+		return reportPanel;
 	}
 }

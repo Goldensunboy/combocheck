@@ -22,8 +22,11 @@ static int edit_distance(char *fname1, char *fname2) {
 	FILE *f1, *f2;
 	if(!(f1 = fopen(fname1, "r")) || !(f2 = fopen(fname2, "r"))) {
 		fprintf(stderr, "Error opening files: %s\n", strerror(errno));
-		fprintf(stderr, "File 1: %s\n", fname1);
-		fprintf(stderr, "File 2: %s\n", fname2);
+		if(!f1) {
+			fprintf(stderr, "File: %s\n", fname1);
+		} else {
+			fprintf(stderr, "File: %s\n", fname2);
+		}
 		return 0x7FFFFFFF;
 	}
 	fseek(f1, 0, SEEK_END);
@@ -40,26 +43,27 @@ static int edit_distance(char *fname1, char *fname2) {
 	fclose(f2);
 
 	// Perform edit distance on the buffers
-	int *D = (int*) malloc(((size1 + 1) * sizeof(int)) << 1);
+	int rowlen = size1 + 1;
+	int *D = (int*) malloc((rowlen * sizeof(int)) << 1);
 	for(int i = 0; i <= size1; ++i) {
 		D[i] = i;
 	}
-	D[size1 + 1] = 1;
+	D[rowlen] = 1;
 	for(int i = 1; i <= size2; ++i) {
 		for(int j = 1; j <= size1; ++j) {
-			int sub = D[((i + 1) & 1) * (size1 + 1) + j - 1];
+			int sub = D[((i + 1) & 1) * rowlen + j - 1];
 			if(buf1[j - 1] != buf2[i - 1]) {
-				int ins = D[((i + 1) & 1) * (size1 + 1)];
-				int del = D[(i & 1) * (size1 + 1) + j - 1];
+				int ins = D[((i + 1) & 1) * rowlen + j];
+				int del = D[(i & 1) * rowlen + j - 1];
 				sub = sub < ins ? sub : ins;
 				sub = sub < del ? sub : del;
 				++sub;
 			}
-			D[(i & 1) * (size1 + 1) + j] = sub;
+			D[(i & 1) * rowlen + j] = sub;
 		}
-		D[((i + 1) & 1) * (size1 + 1)] = D[(i & 1) * (size1 + 1)] + 1;
+		D[((i + 1) & 1) * rowlen] = D[(i & 1) * rowlen] + 1;
 	}
-	int dist = D[(size2 & 1) * (size1 + 1) + size1];
+	int dist = D[(size2 & 1) * rowlen + size1];
 
 	// Clean up
 	free(buf1);

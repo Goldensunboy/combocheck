@@ -14,6 +14,9 @@ import com.combocheck.global.Combocheck;
  */
 public class CombocheckFrame extends JFrame {
 
+	/** The instance of the tabbed pane that this frame holds */
+	private CombocheckTabbedPane tabbedPane = new CombocheckTabbedPane();
+	
 	/**
 	 * Construct the Combocheck frame
 	 */
@@ -32,7 +35,15 @@ public class CombocheckFrame extends JFrame {
 		});
 		
 		// Add the content to the window
-		add(new CombocheckTabbedPane());
+		add(tabbedPane);
 		pack();
+	}
+	
+	/**
+	 * Getter for the instance of the tabbed pane which this holds
+	 * @return
+	 */
+	public CombocheckTabbedPane getTabbedPane() {
+		return tabbedPane;
 	}
 }

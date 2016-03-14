@@ -1,4 +1,7 @@
+# Object files
 *.class
+*.o
+jni/unix/com_combocheck_algo_JNIFunctions.h
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -13,3 +16,8 @@ hs_err_pid*
 /bin/
 .classpath
 .project
+*.swp
+
+# Test files
+test/
+
