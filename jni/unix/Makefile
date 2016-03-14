@@ -5,7 +5,7 @@ SRC = $(wildcard *.cpp)
 OBJ = $(SRC:%.cpp=%.o)
 JAVAHOME = /usr/lib/jvm/java-7-openjdk
 JNIFLAGS = -I"$(JAVAHOME)/include" -I"$(JAVAHOME)/include/linux"
-CFLAGS = -std=c++11 -fpic -O3
+CFLAGS = -std=c++11 -fpic -O2
 LFLAGS = -pthread
 CC = g++
 LD = g++
