@@ -19,5 +19,10 @@ hs_err_pid*
 *.swp
 
 # Test files
-test/
+test*
+legacy_benchmark/
+
+# ANTLR grammar files
+*.g4
+*.tokens
 

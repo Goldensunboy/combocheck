@@ -121,7 +121,6 @@ public class ScanEntryListPanel extends JScrollPane {
 	
 	/**
 	 * Generate the file pairs based on the entries provided
-	 * @return Collection of file pairs
 	 */
 	public void genPairs() {
 		
@@ -178,11 +177,16 @@ public class ScanEntryListPanel extends JScrollPane {
 		if(pairSet.size() > 0) {
 			Combocheck.FileList = left;
 			Combocheck.FilePairs = new ArrayList<FilePair>();
-			Combocheck.FileOrdering = new HashMap<Integer, FilePair>();
+			Combocheck.FileOrdering = new HashMap<Integer, String>();
+			Combocheck.PairOrdering = new HashMap<Integer, FilePair>();
 			int n = 0;
 			for(FilePair fp : pairSet) {
-				Combocheck.FileOrdering.put(n++, fp);
+				Combocheck.PairOrdering.put(n++, fp);
 				Combocheck.FilePairs.add(fp);
+			}
+			n = 0;
+			for(String file : Combocheck.FileList) {
+				Combocheck.FileOrdering.put(n++, file);
 			}
 			
 			// Set the metadata for the JNIalgo library

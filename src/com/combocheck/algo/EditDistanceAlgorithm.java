@@ -45,7 +45,7 @@ public class EditDistanceAlgorithm extends Algorithm {
 		} else {
 			distanceArray = new int[Combocheck.FilePairs.size()];
 			
-			// Java implementation
+			// Run the Java implementation in several threads
 			Thread[] threadPool = new Thread[Combocheck.ThreadCount];
 			for(int i = 0; i < Combocheck.ThreadCount; ++i) {
 				threadPool[i] = new EditDistanceThread(distanceArray, i);
@@ -64,7 +64,7 @@ public class EditDistanceAlgorithm extends Algorithm {
 		// Construct the pair scores mapping
 		fileScores = new HashMap<FilePair, Integer>();
 		for(int i = 0; i < distanceArray.length; ++i) {
-			fileScores.put(Combocheck.FileOrdering.get(i), distanceArray[i]);
+			fileScores.put(Combocheck.PairOrdering.get(i), distanceArray[i]);
 		}
 	}
 	
@@ -73,6 +73,7 @@ public class EditDistanceAlgorithm extends Algorithm {
 	 * edit distance algorithm on several file pairs.
 	 * 
 	 * The order in which the file pairs are processed is striped to prevent
+	 * concurrency issues, or the need for mutexes.
 	 * 
 	 * @author Andrew Wilder
 	 */
@@ -101,7 +102,7 @@ public class EditDistanceAlgorithm extends Algorithm {
 					index += Combocheck.ThreadCount) {
 				
 				// Read the data as a byte array from the 2 files
-				FilePair pair = Combocheck.FileOrdering.get(index);
+				FilePair pair = Combocheck.PairOrdering.get(index);
 				byte[] file1, file2;
 				try {
 					file1 = Files.readAllBytes(new File(

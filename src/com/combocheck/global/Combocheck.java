@@ -12,7 +12,10 @@ import java.util.Map.Entry;
 import com.combocheck.algo.Algorithm;
 import com.combocheck.algo.EditDistanceAlgorithm;
 import com.combocheck.algo.JNIFunctions;
+import com.combocheck.algo.LanguageUtils;
 import com.combocheck.algo.MossAlgorithm;
+import com.combocheck.lang.NormalizationListener;
+import com.combocheck.lang.c.CNormalizer;
 import com.combocheck.ui.CombocheckFrame;
 
 /**
@@ -35,10 +38,13 @@ public class Combocheck {
 	public static List<FilePair> FilePairs = null;
 	
 	// List of all files
-	public static Collection<String> FileList = null;
+	public static List<String> FileList = null;
+	
+	// Mapping of ints onto files for array-based optimizations
+	public static HashMap<Integer, String> FileOrdering = null;
 	
 	// Mapping of ints onto pairs for array-based optimizations
-	public static HashMap<Integer, FilePair> FileOrdering = null;
+	public static HashMap<Integer, FilePair> PairOrdering = null;
 	
 	// List of algorithms
 	public static final Algorithm algorithms[] = {
@@ -82,7 +88,7 @@ public class Combocheck {
 				a.analyzeFiles();
 			}
 		}
-		HashMap<FilePair, Integer> map = algorithms[1].getFileScores();
+		HashMap<FilePair, Integer> map = algorithms[0].getFileScores();
 		//System.out.println(map.size());
 		List<Map.Entry<FilePair, Integer>> scores = new ArrayList<Map.Entry<FilePair, Integer>>(map.entrySet());
 		Collections.sort(scores, new Comparator<Map.Entry<FilePair, Integer>>() {
@@ -102,6 +108,7 @@ public class Combocheck {
 		
 		// TODO change view to review panel
 		
-		frame.getTabbedPane().getScanPanel().getScanControlPanel().enableScanButton();
+		frame.getTabbedPane().getScanPanel().getScanControlPanel()
+				.enableScanButton();
 	}
 }

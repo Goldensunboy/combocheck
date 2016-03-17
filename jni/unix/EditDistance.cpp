@@ -102,7 +102,7 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIEditDistanc
 	// Initialize thread pool
 	int tc = thread_count;
 	pthread_t *threads = (pthread_t*) malloc(tc * sizeof(pthread_t));
-	
+
 	// Initialize edit distance threads
 	for(int i = 0; i < thread_count; ++i) {
 		int *thread_idx = (int*) malloc(sizeof(int));
