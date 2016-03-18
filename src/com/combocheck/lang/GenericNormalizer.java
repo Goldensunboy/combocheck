@@ -6,7 +6,7 @@ package com.combocheck.lang;
  * 
  * @author Andrew Wilder
  */
-public interface NormalizationListener {
+public interface GenericNormalizer {
 	
 	/** The name to convert variables to */
 	public static final String NORMALIZED_IDENTIFIER = "VAR";

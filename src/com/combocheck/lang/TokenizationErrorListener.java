@@ -18,14 +18,14 @@ import org.antlr.v4.runtime.dfa.DFA;
 public class TokenizationErrorListener implements ANTLRErrorListener {
 
 	/** The instance of NormalizationListener to set errors for */
-	private NormalizationListener listener;
+	private GenericNormalizer listener;
 	
 	/**
 	 * Construct the error listener with a link to the attached Normalization
 	 * Listener to which error messages should be added
 	 * @param listener
 	 */
-	public TokenizationErrorListener(NormalizationListener listener) {
+	public TokenizationErrorListener(GenericNormalizer listener) {
 		this.listener = listener;
 	}
 	

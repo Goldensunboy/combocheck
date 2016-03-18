@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
  * 
  * @author Andrew Wilder
  */
-public class TextNormalizer implements NormalizationListener {
+public class TextNormalizer implements GenericNormalizer {
 
 	/**
 	 * Remove whitespace, convert characters to lowercase

@@ -1,6 +1,6 @@
 package com.combocheck.algo;
 
-import com.combocheck.lang.NormalizationListener;
+import com.combocheck.lang.GenericNormalizer;
 import com.combocheck.lang.TextNormalizer;
 import com.combocheck.lang.c.CNormalizer;
 import com.combocheck.lang.java.JavaNormalizer;
@@ -23,25 +23,29 @@ public final class LanguageUtils {
 	public static String GetNormalizedFile(String filename) {
 		
 		// Determine the type of this file
-		NormalizationListener nl;
+		GenericNormalizer normalizer = null;
 		int i = filename.lastIndexOf('.');
 		if (i > 0) {
 		    String ext = filename.substring(i + 1);
 		    switch(ext) {
 			case "c":
-				nl = new CNormalizer();
+				normalizer = new CNormalizer();
 				break;
 			case "java":
-				nl = new JavaNormalizer();
+				normalizer = new JavaNormalizer();
 				break;
-			default:
-				nl = new TextNormalizer();
 			}
-		} else {
-			// No extension
-			nl = new TextNormalizer();
 		}
 		
-		return nl.CreateNormalizedFile(filename);
+		// Fall back on text normalizer on compilation error
+		String ret = null;
+		if(normalizer != null) {
+			ret = normalizer.CreateNormalizedFile(filename);
+		}
+		if(ret == null) {
+			ret = new TextNormalizer().CreateNormalizedFile(filename);
+		}
+		
+		return ret != null ? ret : "";
 	}
 }

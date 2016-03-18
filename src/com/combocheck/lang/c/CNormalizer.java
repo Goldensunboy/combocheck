@@ -14,7 +14,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import com.combocheck.lang.NormalizationListener;
+import com.combocheck.lang.GenericNormalizer;
 import com.combocheck.lang.TokenizationErrorListener;
 
 /**
@@ -23,7 +23,7 @@ import com.combocheck.lang.TokenizationErrorListener;
  * @author Andrew Wilder
  */
 public class CNormalizer extends CBaseListener implements
-		NormalizationListener {
+		GenericNormalizer {
 
 	/** The list of errors encountered during parse tree generation */
 	private List<String> errorList = new ArrayList<String>();
@@ -82,7 +82,7 @@ public class CNormalizer extends CBaseListener implements
 		String fileText = "";
 		for(Token t : tokenStream.getTokens()) {
 			if(t.getType() == CParser.Identifier && replaceTokens.contains(t)) {
-				fileText += NormalizationListener.NORMALIZED_IDENTIFIER;
+				fileText += GenericNormalizer.NORMALIZED_IDENTIFIER;
 			} else if(t.getType() != CParser.EOF) {
 				fileText += t.getText();
 			}

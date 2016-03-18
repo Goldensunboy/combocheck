@@ -189,23 +189,26 @@ public class ScanEntryListPanel extends JScrollPane {
 				Combocheck.FileOrdering.put(n++, file);
 			}
 			
-			// Set the metadata for the JNIalgo library
+			// Create primitive version of pair data
+			Map<String, Integer> reverseMap =
+					new HashMap<String, Integer>();
+			int index = 0;
+			for(String file : Combocheck.FileList) {
+				reverseMap.put(file, index++);
+			}
+			List<Integer> filePairList = new ArrayList<Integer>();
+			for(FilePair fp : pairSet) {
+				filePairList.add(reverseMap.get(fp.getFile1()));
+				filePairList.add(reverseMap.get(fp.getFile2()));
+			}
+			int[] filePairsArray = new int[filePairList.size()];
+			for(int i = 0; i < filePairList.size(); ++i) {
+				filePairsArray[i] = filePairList.get(i);
+			}
+			Combocheck.FilePairInts = filePairsArray;
+			
+			// If the JNI algorithm library is available, set metadata in it
 			if(JNIFunctions.isAvailable()) {
-				Map<String, Integer> reverseMap =
-						new HashMap<String, Integer>();
-				int index = 0;
-				for(String file : Combocheck.FileList) {
-					reverseMap.put(file, index++);
-				}
-				List<Integer> filePairList = new ArrayList<Integer>();
-				for(FilePair fp : pairSet) {
-					filePairList.add(reverseMap.get(fp.getFile1()));
-					filePairList.add(reverseMap.get(fp.getFile2()));
-				}
-				int[] filePairsArray = new int[filePairList.size()];
-				for(int i = 0; i < filePairList.size(); ++i) {
-					filePairsArray[i] = filePairList.get(i);
-				}
 				String[] fileListArray = new String[Combocheck.FileList.size()];
 				index = 0;
 				for(String filename : Combocheck.FileList) {

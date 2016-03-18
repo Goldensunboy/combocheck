@@ -14,7 +14,7 @@ import com.combocheck.algo.EditDistanceAlgorithm;
 import com.combocheck.algo.JNIFunctions;
 import com.combocheck.algo.LanguageUtils;
 import com.combocheck.algo.MossAlgorithm;
-import com.combocheck.lang.NormalizationListener;
+import com.combocheck.lang.GenericNormalizer;
 import com.combocheck.lang.c.CNormalizer;
 import com.combocheck.ui.CombocheckFrame;
 
@@ -36,6 +36,7 @@ public class Combocheck {
 	
 	// List of all file pairs
 	public static List<FilePair> FilePairs = null;
+	public static int[] FilePairInts = null;
 	
 	// List of all files
 	public static List<String> FileList = null;
@@ -89,7 +90,7 @@ public class Combocheck {
 			}
 		}
 		HashMap<FilePair, Integer> map = algorithms[0].getFileScores();
-		//System.out.println(map.size());
+		System.out.println("entries: " + map.size());
 		List<Map.Entry<FilePair, Integer>> scores = new ArrayList<Map.Entry<FilePair, Integer>>(map.entrySet());
 		Collections.sort(scores, new Comparator<Map.Entry<FilePair, Integer>>() {
 			@Override
@@ -99,11 +100,12 @@ public class Combocheck {
 			}
 		});
 		int i = 0;
-		for(Map.Entry<FilePair, Integer> e : scores) {
-			System.out.println("Pair " + i++ + ":");
+		for(i = scores.size() - 40; i < scores.size(); ++i) {
+			Map.Entry<FilePair, Integer> e = scores.get(i);
+			System.out.println("Pair " + (scores.size() - i) + ":");
 			System.out.println("\t" + e.getKey().getFile1());
 			System.out.println("\t" + e.getKey().getFile2());
-			System.out.println("\tedcheck: " + e.getValue());
+			System.out.println("\tmoss: " + e.getValue());
 		}
 		
 		// TODO change view to review panel
