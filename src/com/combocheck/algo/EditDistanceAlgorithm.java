@@ -17,10 +17,10 @@ import com.combocheck.global.FilePair;
 public class EditDistanceAlgorithm extends Algorithm {
 	
 	/**
-	 * Construct the default instance of MossAlgorithm
+	 * Construct the default instance of EditDistanceAlgorithm
 	 */
 	public EditDistanceAlgorithm() {
-		enabled = true;
+		enabled = false;
 		// TODO construct settings dialog
 	}
 	

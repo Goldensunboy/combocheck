@@ -18,7 +18,7 @@ public interface GenericNormalizer {
 	 * @param filename The file to be normalized
 	 * @return The contents as a String, or null if it couldn't be parsed
 	 */
-	public abstract String CreateNormalizedFile(String filename);
+	public String CreateNormalizedFile(String filename);
 	
 	/**
 	 * Used by the TokenizationErrorListener to report syntax errors when a

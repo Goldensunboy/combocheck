@@ -30,12 +30,13 @@ public class TokenizationErrorListener implements ANTLRErrorListener {
 	}
 	
 	/**
-	 * Throw an exception on syntax error
+	 * Report error when syntax error is encountered
 	 */
 	@Override
-	public void syntaxError(Recognizer<?, ?> arg0, Object arg1, int arg2,
-			int arg3, String arg4, RecognitionException arg5) {
-		listener.addErrorMessage(arg4);
+	public void syntaxError(Recognizer<?, ?> arg0, Object arg1, int line,
+			int charPos, String msg, RecognitionException arg5) {
+		listener.addErrorMessage("Syntax error at " + line + ":" + charPos +
+				"   " + msg);
 	}
 	
 	@Override

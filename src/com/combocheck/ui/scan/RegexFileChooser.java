@@ -24,7 +24,7 @@ public class RegexFileChooser extends JFileChooser {
 		
 		// TODO remove this for production
 		File dir = new File("/home/andrew/Documents/Spring_2016/CS 6999/combocheck/test");
-		regexField.setText("HW2Bases\\.java");
+		regexField.setText("bmptoc\\.c");
 		setCurrentDirectory(dir);
 		
 		// Set JFileChooser properties

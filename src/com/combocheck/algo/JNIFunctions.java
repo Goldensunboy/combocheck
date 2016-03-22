@@ -60,4 +60,10 @@ public final class JNIFunctions {
 	 * @return Metrics per pair
 	 */
 	public static native int[] JNIMoss();
+	
+	/**
+	 * AST distance implementation
+	 * @return Metrics per pair
+	 */
+	public static native int[] JNIASTDistance();
 }

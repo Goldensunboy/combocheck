@@ -1,5 +1,7 @@
 package com.combocheck.algo;
 
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import com.combocheck.lang.GenericNormalizer;
 import com.combocheck.lang.TextNormalizer;
 import com.combocheck.lang.c.CNormalizer;
@@ -47,5 +49,29 @@ public final class LanguageUtils {
 		}
 		
 		return ret != null ? ret : "";
+	}
+	
+	/**
+	 * This function will return an ANTLR AST generated for a source code file
+	 * 
+	 * @param filename The file to generate an AST for
+	 * @return The AST
+	 */
+	public static ParseTree GetAST(String filename) {
+		
+		// Determine type of file
+		int i = filename.lastIndexOf('.');
+		if(i > 0) {
+			String ext = filename.substring(i + 1);
+			switch(ext) {
+			case "c":
+				return new CNormalizer().CreateAST(filename);
+			case "java":
+				return new JavaNormalizer().CreateAST(filename);
+			}
+		}
+		
+		// No recognized extension
+		return null;
 	}
 }

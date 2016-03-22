@@ -8,7 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
+import com.combocheck.algo.ASTDistanceAlgorithm;
 import com.combocheck.algo.Algorithm;
 import com.combocheck.algo.EditDistanceAlgorithm;
 import com.combocheck.algo.JNIFunctions;
@@ -50,7 +52,8 @@ public class Combocheck {
 	// List of algorithms
 	public static final Algorithm algorithms[] = {
 		new MossAlgorithm(),
-		new EditDistanceAlgorithm()
+		new EditDistanceAlgorithm(),
+		new ASTDistanceAlgorithm()
 	};
 	
 	// How many threads to run concurrently for analysis
@@ -100,13 +103,13 @@ public class Combocheck {
 			}
 		});
 		int i = 0;
-		for(i = scores.size() - 40; i < scores.size(); ++i) {
-			Map.Entry<FilePair, Integer> e = scores.get(i);
-			System.out.println("Pair " + (scores.size() - i) + ":");
-			System.out.println("\t" + e.getKey().getFile1());
-			System.out.println("\t" + e.getKey().getFile2());
-			System.out.println("\tmoss: " + e.getValue());
-		}
+//		for(i = scores.size() - 1000; i < scores.size(); ++i) {
+//			Map.Entry<FilePair, Integer> e = scores.get(i);
+//			System.out.println("Pair " + (scores.size() - i) + ":");
+//			System.out.println("\t" + e.getKey().getFile1());
+//			System.out.println("\t" + e.getKey().getFile2());
+//			System.out.println("\tmoss: " + e.getValue());
+//		}
 		
 		// TODO change view to review panel
 		
