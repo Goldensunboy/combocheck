@@ -28,9 +28,8 @@ public class ASTDistanceAlgorithm extends Algorithm {
 	// dim 2: Which key root, index into ASTnodes
 	private static int[][] keyroots;
 	// dim 1: Which file's left sets
-	// dim 2: Which left set, size is |keyroots[index]|
-	// dim 3: Which node in the left set, index into ASTnodes
-	private static int[][][] L;
+	// dim 2: Which node is left of this index
+	private static int[][] L;
 	
 	/**
 	 * Construct the default instance of ASTDistanceAlgorithm
@@ -98,7 +97,7 @@ public class ASTDistanceAlgorithm extends Algorithm {
 			ASTroots = new ParseTree[Combocheck.FileList.size()];
 			ASTnodes = new ParseTree[Combocheck.FileList.size()][];
 			keyroots = new int[Combocheck.FileList.size()][];
-			L = new int[Combocheck.FileList.size()][][];
+			L = new int[Combocheck.FileList.size()][];
 			Thread[] threadPool = new Thread[Combocheck.ThreadCount];
 			for(int i = 0; i < Combocheck.ThreadCount; ++i) {
 				threadPool[i] = new ASTPreprocessingThread(i);
@@ -197,7 +196,7 @@ public class ASTDistanceAlgorithm extends Algorithm {
 				}
 				
 				// Get the left sets
-				L[index] = new int[keys.size()][];
+				L[index] = new int[nodeCount];
 				for(int i = 0; i < keys.size(); ++i) {
 					List<Integer> left = new ArrayList<Integer>();
 					ParseTree node = ASTnodes[index][keys.get(i)];
@@ -205,9 +204,9 @@ public class ASTDistanceAlgorithm extends Algorithm {
 						left.add(reverseMap.get(node));
 						node = node.getChild(0);
 					} while(node != null);
-					L[index][i] = new int[left.size()];
+					int dest = left.get(left.size() - 1);
 					for(int j = 0; j < left.size(); ++j) {
-						L[index][i][j] = left.get(left.size() - j - 1);
+						L[index][left.get(j)] = dest;
 					}
 				}
 				if(index == 0) {
@@ -259,12 +258,54 @@ public class ASTDistanceAlgorithm extends Algorithm {
 					continue; // Infinite distance if no compile
 				}
 				
+				// Calculate tree distance, main loop
+				int[][] tdist = new int[ASTnodes[idx1].length + 1]
+						[ASTnodes[idx2].length + 1];
+				for(int ip = 0; ip < keyroots[idx1].length; ++ip) {
+					for(int jp = 0; jp < keyroots[idx2].length; ++jp) {
+						int pos1 = keyroots[idx1][ip];
+						int pos2 = keyroots[idx2][jp];
+						
+						// treedist(i,j) algorithm DP array initialization
+						// cost of insertion/deletion/mutation is 1
+						int bound1 = pos1 - L[idx1][pos1] + 2;
+						int bound2 = pos2 - L[idx2][pos2] + 2;
+						int[][] fdist = new int[bound1][bound2];
+						fdist[0][0] = 0;
+						for(int i = 1; i < bound1; ++i) {
+							fdist[i][0] = fdist[i - 1][0];
+						}
+						for(int i = 1; i < bound2; ++i) {
+							fdist[0][i] = fdist[0][i - 1];
+						}
+						
+						// Forest distance table population
+						for(int k = L[idx1][pos1], i = 1; k <= pos1;
+								++k, ++i) {
+							for(int l = L[idx2][pos2], j = 1; l <= pos2;
+									++l, ++j) {
+								if(L[idx1][k] == L[idx1][pos1] &&
+										L[idx2][l] == L[idx2][pos2]) {
+									int min = fdist[i - 1][j - 1];
+									min = Math.min(min, fdist[i - 1][j]);
+									min = Math.min(min, fdist[i][j - 1]);
+									tdist[k][l] = fdist[i][j] = min;
+								} else {
+									int m = L[idx1][k] - L[idx1][pos1];
+									int n = L[idx2][l] - L[idx2][pos2];
+									int min = fdist[m][n] + tdist[k][l];
+									min = Math.min(min, fdist[i - 1][j]);
+									min = Math.min(min, fdist[i][j - 1]);
+									fdist[i][j] = min;
+								}
+							}
+						}
+					}
+				}
 				
-				
-				
-				
-				
-				distanceArray[index] = 0;
+				distanceArray[index] = tdist[ASTnodes[idx1].length]
+						[ASTnodes[idx2].length];
+				System.out.println("Completed: " + index);
 			}
 		}
 	}
