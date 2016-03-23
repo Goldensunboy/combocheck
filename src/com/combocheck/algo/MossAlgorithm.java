@@ -1,9 +1,9 @@
 package com.combocheck.algo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.combocheck.algo.Algorithm;
 import com.combocheck.global.Combocheck;
@@ -24,7 +24,7 @@ public class MossAlgorithm extends Algorithm {
 	 * Construct the default instance of MossAlgorithm
 	 */
 	public MossAlgorithm() {
-		enabled = false;
+		enabled = true;
 		// TODO construct settings dialog
 	}
 	
@@ -45,11 +45,12 @@ public class MossAlgorithm extends Algorithm {
 		
 		// Use the JNI implementation if it is available
 		if(JNIFunctions.isAvailable() && false) {
-			scoreArray = JNIFunctions.JNIMoss();
+			scoreArray = JNIFunctions.JNIMoss(); // TODO implement
 		} else {
 			scoreArray = new int[Combocheck.FilePairs.size()];
 			
 			// Preprocess the files
+			@SuppressWarnings("unchecked")
 			List<Integer>[] fingerprints =
 					new ArrayList[Combocheck.FileList.size()];
 			Thread[] threadPool = new Thread[Combocheck.ThreadCount];
@@ -167,6 +168,7 @@ public class MossAlgorithm extends Algorithm {
 				}
 				
 				// Add the fingerprint to the array being constructed
+				Collections.sort(fingerprint);
 				fingerprints[index] = fingerprint;
 			}
 		}
@@ -215,43 +217,16 @@ public class MossAlgorithm extends Algorithm {
 				List<Integer> fp1 = fingerprints[idx1];
 				List<Integer> fp2 = fingerprints[idx2];
 				
-//				// Find number of fingerprint values in common
-//				int score = 0;
-//				for(int i = 0; i < fp1.size(); ++i) {
-//					for(int j = 0; j < fp2.size(); ++j) {
-//						if((int) fp1.get(i) == (int) fp2.get(j)) {
-//							++score;
-//						}
-//					}
-//				}
-//				scoreArray[index] = score;
-				
-				// Find percentage difference
-				Map<Integer, Integer> countMap =
-						new HashMap<Integer, Integer>();
-				for(Integer i : fp1) {
-					Integer prev = countMap.get(i);
-					countMap.put(i, prev == null ? 1 : prev + 1);
+				// Edit distance of the token array
+				int[] a1 = new int[fp1.size()];
+				for(int i = 0; i < fp1.size(); ++i) {
+					a1[i] = fp1.get(i);
 				}
-				int unique2 = 0;
-				for(Integer i : fp2) {
-					Integer curr = countMap.get(i);
-					if(curr == null || curr == 0) {
-						++unique2;
-					} else {
-						countMap.put(i, curr - 1);
-					}
+				int[] a2 = new int[fp2.size()];
+				for(int i = 0; i < fp2.size(); ++i) {
+					a2[i] = fp2.get(i);
 				}
-				int unique1 = 0;
-				for(Integer i : countMap.values()) {
-					unique1 += i;
-				}
-				int common = (fp1.size() + fp2.size() - unique1 - unique2) >> 1;
-				double diff1 = (double) (common + unique1) / (common + unique1 +
-						unique2);
-				double diff2 = (double) (common + unique2) / (common + unique1 +
-						unique2);
-				scoreArray[index] = (int) ((diff1 + diff2) * 1000000000);
+				scoreArray[index] = Algorithm.EditDistance(a1, a2);
 			}
 		}
 	}

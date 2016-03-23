@@ -100,6 +100,8 @@ public class CNormalizer extends CBaseListener implements
 		return strippedFile;
 	}
 	
+	
+	
 	/**
 	 * Create an AST from a file
 	 * @param filename the file
@@ -124,7 +126,6 @@ public class CNormalizer extends CBaseListener implements
 		parser.removeErrorListeners();
 		parser.addErrorListener(errorListener);
 		errorList.clear();
-		replaceTokens.clear();
 		ParserRuleContext tree = parser.compilationUnit();
 		if(errorList.size() > 0) {
 			System.err.println(filename + ": " + errorList.get(0));
@@ -132,6 +133,38 @@ public class CNormalizer extends CBaseListener implements
 		}
 		
 		return tree;
+	}
+	
+	/**
+	 * This function will get the lexical tokens of a file as a list
+	 * @param filename The file to get tokens from
+	 * @return The token list
+	 */
+	public List<Token> GetTokens(String filename) {
+		
+		// Get the preprocessed file
+		String input = PreprocessFile(filename);
+		if(input == null) {
+			// file not found
+			return null;
+		}
+		
+		// Parse the file, renaming identifier tokens
+		CharStream stream = new ANTLRInputStream(input);
+		Lexer lexer = new CLexer(stream);
+		lexer.removeErrorListeners();
+		lexer.addErrorListener(errorListener);
+		BufferedTokenStream tokenStream = new BufferedTokenStream(lexer);
+		CParser parser = new CParser(tokenStream);
+		parser.removeErrorListeners();
+		parser.addErrorListener(errorListener);
+		errorList.clear();
+		parser.compilationUnit();
+		if(errorList.size() > 0) {
+			System.err.println(filename + ": " + errorList.get(0));
+		}
+		
+		return tokenStream.getTokens();
 	}
 	
 	/**

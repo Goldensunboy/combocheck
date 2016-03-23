@@ -1,23 +1,18 @@
 package com.combocheck.global;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
-import com.combocheck.algo.ASTDistanceAlgorithm;
 import com.combocheck.algo.Algorithm;
 import com.combocheck.algo.EditDistanceAlgorithm;
 import com.combocheck.algo.JNIFunctions;
-import com.combocheck.algo.LanguageUtils;
 import com.combocheck.algo.MossAlgorithm;
-import com.combocheck.lang.GenericNormalizer;
-import com.combocheck.lang.c.CNormalizer;
+import com.combocheck.algo.TokenDistanceAlgorithm;
 import com.combocheck.ui.CombocheckFrame;
 
 /**
@@ -53,7 +48,7 @@ public class Combocheck {
 	public static final Algorithm algorithms[] = {
 		new MossAlgorithm(),
 		new EditDistanceAlgorithm(),
-		new ASTDistanceAlgorithm()
+		new TokenDistanceAlgorithm()
 	};
 	
 	// How many threads to run concurrently for analysis
@@ -99,17 +94,17 @@ public class Combocheck {
 			@Override
 			public int compare(Entry<FilePair, Integer> arg0,
 					Entry<FilePair, Integer> arg1) {
-				return arg0.getValue() - arg1.getValue();
+				return arg1.getValue() - arg0.getValue();
 			}
 		});
 		int i = 0;
-//		for(i = scores.size() - 1000; i < scores.size(); ++i) {
-//			Map.Entry<FilePair, Integer> e = scores.get(i);
-//			System.out.println("Pair " + (scores.size() - i) + ":");
-//			System.out.println("\t" + e.getKey().getFile1());
-//			System.out.println("\t" + e.getKey().getFile2());
-//			System.out.println("\tmoss: " + e.getValue());
-//		}
+		for(i = scores.size() - 100; i < scores.size(); ++i) {
+			Map.Entry<FilePair, Integer> e = scores.get(i);
+			System.out.println("Pair " + (scores.size() - i) + ":");
+			System.out.println("\t" + e.getKey().getFile1());
+			System.out.println("\t" + e.getKey().getFile2());
+			System.out.println("\tmoss: " + e.getValue());
+		}
 		
 		// TODO change view to review panel
 		

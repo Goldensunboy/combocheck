@@ -74,6 +74,39 @@ public class JavaNormalizer extends JavaBaseListener implements
 	}
 	
 	/**
+	 * This function will get the lexical tokens of a file as a list
+	 * @param filename The file to get tokens from
+	 * @return The token list
+	 */
+	public List<Token> GetTokens(String filename) {
+		
+		// Open the file
+		ANTLRFileStream input;
+		try {
+			input = new ANTLRFileStream(filename);
+		} catch(IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		// Parse the file, renaming identifier tokens
+		Lexer lexer = new JavaLexer(input);
+		lexer.removeErrorListeners();
+		lexer.addErrorListener(errorListener);
+		BufferedTokenStream tokenStream = new BufferedTokenStream(lexer);
+		JavaParser parser = new JavaParser(tokenStream);
+		parser.removeErrorListeners();
+		parser.addErrorListener(errorListener);
+		errorList.clear();
+		parser.compilationUnit();
+		if(errorList.size() > 0) {
+			System.err.println(filename + ": " + errorList.get(0));
+		}
+		
+		return tokenStream.getTokens();
+	}
+	
+	/**
 	 * This function will take in a file to be walked by ANTLR, remove the
 	 * whitespace, and convert all identifiers to a fixed name
 	 * 

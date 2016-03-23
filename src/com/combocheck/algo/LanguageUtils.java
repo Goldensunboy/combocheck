@@ -1,5 +1,8 @@
 package com.combocheck.algo;
 
+import java.util.List;
+
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.combocheck.lang.GenericNormalizer;
@@ -73,5 +76,40 @@ public final class LanguageUtils {
 		
 		// No recognized extension
 		return null;
+	}
+	
+	/**
+	 * This function will return an array of token ID values for a file
+	 * @param filename The file to generate tokens for
+	 * @return The tokens
+	 */
+	public static int[] GetTokenIDs(String filename) {
+		List<Token> tokens;
+		
+		// Determine type of file
+		int i = filename.lastIndexOf('.');
+		if(i > 0) {
+			String ext = filename.substring(i + 1);
+			switch(ext) {
+			case "c":
+				tokens = new CNormalizer().GetTokens(filename);
+				break;
+			case "java":
+				tokens = new JavaNormalizer().GetTokens(filename);
+				break;
+			default:
+				return null;
+			}
+		} else {
+			// No recognized extension
+			return null;
+		}
+		
+		// Create array
+		int[] tokenArr = new int[tokens.size()];
+		for(i = 0; i < tokens.size(); ++i) {
+			tokenArr[i] = tokens.get(i).getType();
+		}
+		return tokenArr;
 	}
 }
