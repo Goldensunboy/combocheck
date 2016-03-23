@@ -24,7 +24,7 @@ public class MossAlgorithm extends Algorithm {
 	 * Construct the default instance of MossAlgorithm
 	 */
 	public MossAlgorithm() {
-		enabled = true;
+		enabled = false;
 		// TODO construct settings dialog
 	}
 	

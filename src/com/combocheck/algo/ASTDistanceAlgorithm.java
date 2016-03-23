@@ -150,8 +150,6 @@ public class ASTDistanceAlgorithm extends Algorithm {
 		
 		/**
 		 * Construct a new AST preprocessing thread
-		 * @param roots The root nodes for the file ASTs
-		 * @param keyroots The key root nodes for the tree distance algorithm
 		 * @param initialIndex Start index for striped processing
 		 */
 		public ASTPreprocessingThread(int initialIndex) {
@@ -233,8 +231,7 @@ public class ASTDistanceAlgorithm extends Algorithm {
 		
 		/**
 		 * Construct a new AST preprocessing thread
-		 * @param roots The root nodes for the file ASTs
-		 * @param keyroots The key root nodes for the tree distance algorithm
+		 * @param distanceArray Array of comparison results per pair
 		 * @param initialIndex Start index for striped processing
 		 */
 		public ASTComparisonThread(int[] distanceArray, int initialIndex) {

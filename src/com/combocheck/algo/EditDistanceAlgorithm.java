@@ -114,36 +114,8 @@ public class EditDistanceAlgorithm extends Algorithm {
 					continue;
 				}
 				
-				// Order them such that file 1 is larger
-				if(file2.length > file1.length) {
-					byte[] temp = file1;
-					file1 = file2;
-					file2 = temp;
-				}
-				
-				// Do edit distance
-				int[][] D = new int[2][file1.length + 1];
-				for(int i = 0; i <= file1.length; ++i) {
-					D[0][i] = i;
-				}
-				D[1][0] = 1;
-				for(int i = 1; i <= file2.length; ++i) {
-					for(int j = 1; j <= file1.length; ++j) {
-						int sub = D[(i + 1) & 1][j - 1];
-						if(file1[j - 1] != file2[i - 1]) {
-							int ins = D[(i + 1) & 1][j];
-							int del = D[i & 1][j - 1];
-							sub = sub < ins ? sub : ins;
-							sub = sub < del ? sub : del;
-							++sub;
-						}
-						D[i & 1][j] = sub;
-					}
-					D[(i + 1) & 1][0] = D[i & 1][0] + 1;
-				}
-				
-				// Edit distance is at the end of the array
-				distanceArray[index] = D[file2.length & 1][file1.length];
+				// Calculate edit distance
+				distanceArray[index] = Algorithm.EditDistance(file1, file2);
 			}
 		}
 	}

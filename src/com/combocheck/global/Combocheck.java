@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.combocheck.algo.ASTIsomorphismAlgorithm;
 import com.combocheck.algo.Algorithm;
 import com.combocheck.algo.EditDistanceAlgorithm;
 import com.combocheck.algo.JNIFunctions;
@@ -22,6 +23,14 @@ import com.combocheck.ui.CombocheckFrame;
  * @author Andrew Wilder
  */
 public class Combocheck {
+	
+	/** Algorithms */
+	public static final Algorithm algorithms[] = {
+		new MossAlgorithm(),
+		new TokenDistanceAlgorithm(),
+		new ASTIsomorphismAlgorithm(),
+		new EditDistanceAlgorithm()
+	};
 	
 	/** Combocheck constants */
 	public static final String PROGRAM_TITLE = "Combocheck";
@@ -43,13 +52,6 @@ public class Combocheck {
 	
 	// Mapping of ints onto pairs for array-based optimizations
 	public static HashMap<Integer, FilePair> PairOrdering = null;
-	
-	// List of algorithms
-	public static final Algorithm algorithms[] = {
-		new MossAlgorithm(),
-		new EditDistanceAlgorithm(),
-		new TokenDistanceAlgorithm()
-	};
 	
 	// How many threads to run concurrently for analysis
 	public static int ThreadCount = 8;
@@ -82,12 +84,20 @@ public class Combocheck {
 	 * Perform the selected scans over the file pairs
 	 */
 	public static void performScans() {
+		
+		long start_time = System.nanoTime();
+		
 		for(Algorithm a : algorithms) {
 			if(a.isEnabled()) {
 				a.analyzeFiles();
 			}
 		}
-		HashMap<FilePair, Integer> map = algorithms[0].getFileScores();
+		
+		long end_time = System.nanoTime();
+		double difference = (end_time - start_time)/1e9;
+		System.out.println("Analysis took: " + difference + " seconds");
+		
+		HashMap<FilePair, Integer> map = algorithms[2].getFileScores();
 		System.out.println("entries: " + map.size());
 		List<Map.Entry<FilePair, Integer>> scores = new ArrayList<Map.Entry<FilePair, Integer>>(map.entrySet());
 		Collections.sort(scores, new Comparator<Map.Entry<FilePair, Integer>>() {
@@ -98,12 +108,12 @@ public class Combocheck {
 			}
 		});
 		int i = 0;
-		for(i = scores.size() - 100; i < scores.size(); ++i) {
+		for(i = 0; i < scores.size(); ++i) {
 			Map.Entry<FilePair, Integer> e = scores.get(i);
 			System.out.println("Pair " + (scores.size() - i) + ":");
 			System.out.println("\t" + e.getKey().getFile1());
 			System.out.println("\t" + e.getKey().getFile2());
-			System.out.println("\tmoss: " + e.getValue());
+			System.out.println("\tvalue: " + e.getValue());
 		}
 		
 		// TODO change view to review panel
