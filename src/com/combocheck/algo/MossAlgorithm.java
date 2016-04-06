@@ -24,7 +24,7 @@ public class MossAlgorithm extends Algorithm {
 	 * Construct the default instance of MossAlgorithm
 	 */
 	public MossAlgorithm() {
-		enabled = false;
+		enabled = true;
 		// TODO construct settings dialog
 	}
 	
@@ -44,8 +44,8 @@ public class MossAlgorithm extends Algorithm {
 		int[] scoreArray;
 		
 		// Use the JNI implementation if it is available
-		if(JNIFunctions.isAvailable() && false) {
-			scoreArray = JNIFunctions.JNIMoss(); // TODO implement
+		if(JNIFunctions.isAvailable()) {
+			scoreArray = JNIFunctions.JNIMoss(K, W); // TODO implement
 		} else {
 			scoreArray = new int[Combocheck.FilePairs.size()];
 			
@@ -128,7 +128,7 @@ public class MossAlgorithm extends Algorithm {
 				List<Integer> fingerprint = new ArrayList<Integer>();
 				
 				// If file size is less than K, fingerprint contains one val
-				if(fileString.length() < K) {
+				if(fileString.length() <= K) {
 					fingerprint.add(fileString.hashCode());
 				} else {
 					

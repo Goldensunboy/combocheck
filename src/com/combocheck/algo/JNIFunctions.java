@@ -57,9 +57,11 @@ public final class JNIFunctions {
 	
 	/**
 	 * Moss implementation
+	 * @param K the k-gram size
+	 * @param W the winnowing window size
 	 * @return Metrics per pair
 	 */
-	public static native int[] JNIMoss();
+	public static native int[] JNIMoss(int K, int W);
 	
 	/**
 	 * AST distance implementation

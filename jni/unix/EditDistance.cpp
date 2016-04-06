@@ -2,76 +2,18 @@
  * Calculates edit distance for a list of file pairs
  */
 
+// Combocheck libraries
 #include "com_combocheck_algo_JNIFunctions.h"
 #include "jnialgo.h"
 
-#include <pthread.h>
+// C libraries
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
 #include <cerrno>
 
-using namespace std;
-
-int *pair_distances;
-
-// Edit distance function
-static int edit_distance(char *fname1, char *fname2) {
-
-	// Read files into buffers
-	FILE *f1, *f2;
-	if(!(f1 = fopen(fname1, "r")) || !(f2 = fopen(fname2, "r"))) {
-		fprintf(stderr, "Error opening files: %s\n", strerror(errno));
-		if(!f1) {
-			fprintf(stderr, "File: %s\n", fname1);
-		} else {
-			fprintf(stderr, "File: %s\n", fname2);
-		}
-		return 0x7FFFFFFF;
-	}
-	fseek(f1, 0, SEEK_END);
-	long size1 = ftell(f1);
-	fseek(f1, 0, SEEK_SET);
-	char *buf1 = (char*) malloc(size1);
-	fread(buf1, size1, 1, f1);
-	fseek(f2, 0, SEEK_END);
-	long size2 = ftell(f2);
-	fseek(f2, 0, SEEK_SET);
-	char *buf2 = (char*) malloc(size2);
-	fread(buf2, size2, 1, f2);
-	fclose(f1);
-	fclose(f2);
-
-	// Perform edit distance on the buffers
-	int rowlen = size1 + 1;
-	int *D = (int*) malloc((rowlen * sizeof(int)) << 1);
-	for(int i = 0; i <= size1; ++i) {
-		D[i] = i;
-	}
-	D[rowlen] = 1;
-	for(int i = 1; i <= size2; ++i) {
-		for(int j = 1; j <= size1; ++j) {
-			int sub = D[((i + 1) & 1) * rowlen + j - 1];
-			if(buf1[j - 1] != buf2[i - 1]) {
-				int ins = D[((i + 1) & 1) * rowlen + j];
-				int del = D[(i & 1) * rowlen + j - 1];
-				sub = sub < ins ? sub : ins;
-				sub = sub < del ? sub : del;
-				++sub;
-			}
-			D[(i & 1) * rowlen + j] = sub;
-		}
-		D[((i + 1) & 1) * rowlen] = D[(i & 1) * rowlen] + 1;
-	}
-	int dist = D[(size2 & 1) * rowlen + size1];
-
-	// Clean up
-	free(buf1);
-	free(buf2);
-	free(D);
-
-	return dist;
-}
+// Variables specific to this algorithm
+static int *pair_distances;
 
 // Function to be run by the threads
 static void *do_edit_distance(void *data) {
@@ -85,9 +27,48 @@ static void *do_edit_distance(void *data) {
 		int idx2 = file_pairs[(idx << 1) + 1];
 		char *fname1 = file_names[idx1];
 		char *fname2 = file_names[idx2];
-		pair_distances[idx] = edit_distance(fname1, fname2);
+
+		// Read files into buffers
+		FILE *f1, *f2;
+		if(!(f1 = fopen(fname1, "r")) || !(f2 = fopen(fname2, "r"))) {
+			fprintf(stderr, "Error opening file: %s\n", strerror(errno));
+			if(!f1) {
+				fprintf(stderr, "File: %s\n", fname1);
+			} else {
+				fprintf(stderr, "File: %s\n", fname2);
+			}
+			pair_distances[idx] = 0x7FFFFFFF;
+		} else {
+			fseek(f1, 0, SEEK_END);
+			long size1 = ftell(f1);
+			fseek(f1, 0, SEEK_SET);
+			char *buf1 = (char*) malloc(size1);
+			fread(buf1, size1, 1, f1);
+			fseek(f2, 0, SEEK_END);
+			long size2 = ftell(f2);
+			fseek(f2, 0, SEEK_SET);
+			char *buf2 = (char*) malloc(size2);
+			fread(buf2, size2, 1, f2);
+			fclose(f1);
+			fclose(f2);
+
+			// Get the edit distance
+			pair_distances[idx] = edit_distance_char(buf1, size1, buf2, size2);
+
+			// Clean up
+			free(buf1);
+			free(buf2);
+		}
+
+		// Update progress
+		pthread_mutex_lock(&progress_mutex);
+		progress = 100 * ++completed / pair_count;
+		pthread_mutex_unlock(&progress_mutex);
+
 		idx += thread_count;
 	}
+
+	// Clean up
 	free(data);
 	return NULL;
 }
@@ -104,6 +85,7 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIEditDistanc
 	pthread_t *threads = (pthread_t*) malloc(tc * sizeof(pthread_t));
 
 	// Initialize edit distance threads
+	completed = 0;
 	for(int i = 0; i < thread_count; ++i) {
 		int *thread_idx = (int*) malloc(sizeof(int));
 		*thread_idx = i;
@@ -125,4 +107,3 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIEditDistanc
 
 	return ret;
 }
-

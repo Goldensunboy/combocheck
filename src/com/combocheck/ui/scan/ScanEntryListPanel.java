@@ -2,6 +2,7 @@ package com.combocheck.ui.scan;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -101,14 +102,17 @@ public class ScanEntryListPanel extends JScrollPane {
 						BoxLayout.Y_AXIS));
 				JTextPane entryTextPane = new JTextPane();
 				entryTextPane.setEditable(false);
+				String type = se.isRegex() ? "Regex" : "Filename";
 				entryTextPane.setText("Type: " + se.getType().toString() +
-						"\nPath: " + se.getPath() + "\nRegex: " +
+						"\nPath: " + se.getPath() + "\n" + type + ": " +
 						se.getRegex());
+				JPanel removeButtonPanel = new JPanel();
+				removeButtonPanel.setLayout(new FlowLayout(FlowLayout.LEADING));
 				JButton removeButton = new ScanEntryButton(this, se);
 				removeButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-				// TODO try to left justify the remove button
 				entryPanel.add(entryTextPane);
-				entryPanel.add(removeButton);
+				removeButtonPanel.add(removeButton);
+				entryPanel.add(removeButtonPanel);
 				entryPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,
 						entryPanel.getPreferredSize().height));
 				contentPane.add(entryPanel);
@@ -152,11 +156,21 @@ public class ScanEntryListPanel extends JScrollPane {
 					for(File f : subFiles) {
 						if(f.isDirectory()) {
 							folders.add(f);
-						} else if(Pattern.matches(se.getRegex(), f.getName())) {
-							left.add(f.getAbsolutePath());
-							if(se.getType() == ScanEntry.
-									ScanEntryType.Normal) {
-								right.add(f.getAbsolutePath());
+						} else if(se.isRegex()) {
+							if(Pattern.matches(se.getRegex(), f.getName())) {
+								left.add(f.getAbsolutePath());
+								if(se.getType() == ScanEntry.
+										ScanEntryType.Normal) {
+									right.add(f.getAbsolutePath());
+								}
+							}
+						} else {
+							if(se.getRegex().equals(f.getName())) {
+								left.add(f.getAbsolutePath());
+								if(se.getType() == ScanEntry.
+										ScanEntryType.Normal) {
+									right.add(f.getAbsolutePath());
+								}
 							}
 						}
 					}

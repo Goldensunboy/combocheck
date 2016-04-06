@@ -60,7 +60,9 @@ public class ScanControlPanel extends JPanel {
 		add(buttonPanel);
 		
 		// Add algorithm selections
-		JPanel algorithmPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		JPanel algorithmPanel = new JPanel();
+		algorithmPanel.setLayout(new BoxLayout(algorithmPanel,
+				BoxLayout.Y_AXIS));
 		algorithmPanel.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createTitledBorder("Algorithms:"),
 				BorderFactory.createEmptyBorder(5,5,5,5)));
@@ -80,6 +82,7 @@ public class ScanControlPanel extends JPanel {
 		add(algorithmPanel);
 		
 		// Add the scan button
+		JPanel scanButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
 		scanButton = new JButton("Start scan");
 		scanButton.addActionListener(new ActionListener() {
 			@Override
@@ -103,7 +106,7 @@ public class ScanControlPanel extends JPanel {
 				// Generate pairs of files
 				scanEntryListPanel.genPairs();
 				List<FilePair> filePairs = Combocheck.FilePairs;
-				if(filePairs.size() == 0) {
+				if(filePairs == null || filePairs.size() == 0) {
 					JOptionPane.showMessageDialog(ScanControlPanel.this,
 							"No file pairs found", "Could not start scan",
 							JOptionPane.ERROR_MESSAGE);
@@ -115,7 +118,8 @@ public class ScanControlPanel extends JPanel {
 				Combocheck.performScans();
 			}
 		});
-		add(scanButton);
+		scanButtonPanel.add(scanButton);
+		add(scanButtonPanel);
 	}
 	
 	/**
@@ -153,7 +157,8 @@ public class ScanControlPanel extends JPanel {
 					JFileChooser.APPROVE_OPTION) {
 				String dir = RFchooser.getSelectedFile().getAbsolutePath();
 				String regex = RFchooser.getRegex();
-				ScanEntry entry = new ScanEntry(dir, regex, type);
+				boolean isRegex = RFchooser.isRegexType();
+				ScanEntry entry = new ScanEntry(dir, regex, type, isRegex);
 				scanEntryListPanel.getEntries().add(entry);
 				scanEntryListPanel.revalidate();
 				scanEntryListPanel.repaint();

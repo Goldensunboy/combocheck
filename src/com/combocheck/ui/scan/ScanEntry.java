@@ -45,16 +45,21 @@ public class ScanEntry {
 	/** The type of scan entry this represents */
 	private ScanEntryType type = null;
 	
+	/** Whether this scan is by regex or filename */
+	private boolean isRegex = false;
+	
 	/**
 	 * Construct a new scan entry
 	 * @param path Path to the files to scan for
 	 * @param regex The regular expression matching files to search for
 	 * @param type The type of scan entry this object represents
 	 */
-	public ScanEntry(String path, String regex, ScanEntryType type) {
+	public ScanEntry(String path, String regex, ScanEntryType type,
+			boolean isRegex) {
 		this.path = path;
 		this.regex = regex;
 		this.type = type;
+		this.isRegex = isRegex;
 	}
 	
 	/**
@@ -79,6 +84,14 @@ public class ScanEntry {
 	 */
 	public ScanEntryType getType() {
 		return type;
+	}
+	
+	/**
+	 * Getter for the isRegex field of this entry
+	 * @return True if combocheck is to search by regex
+	 */
+	public boolean isRegex() {
+		return isRegex;
 	}
 	
 	/**

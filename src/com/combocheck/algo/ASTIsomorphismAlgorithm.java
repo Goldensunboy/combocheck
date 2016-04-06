@@ -24,7 +24,7 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 	 * Construct the default instance of ASTIsomorphismAlgorithm
 	 */
 	public ASTIsomorphismAlgorithm() {
-		enabled = true;
+		enabled = false;
 		// TODO construct settings dialog
 	}
 	

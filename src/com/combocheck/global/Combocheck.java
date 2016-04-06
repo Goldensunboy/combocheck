@@ -97,7 +97,7 @@ public class Combocheck {
 		double difference = (end_time - start_time)/1e9;
 		System.out.println("Analysis took: " + difference + " seconds");
 		
-		HashMap<FilePair, Integer> map = algorithms[2].getFileScores();
+		HashMap<FilePair, Integer> map = algorithms[1].getFileScores();
 		System.out.println("entries: " + map.size());
 		List<Map.Entry<FilePair, Integer>> scores = new ArrayList<Map.Entry<FilePair, Integer>>(map.entrySet());
 		Collections.sort(scores, new Comparator<Map.Entry<FilePair, Integer>>() {
@@ -108,7 +108,7 @@ public class Combocheck {
 			}
 		});
 		int i = 0;
-		for(i = 0; i < scores.size(); ++i) {
+		for(i = scores.size() - 100; i < scores.size(); ++i) {
 			Map.Entry<FilePair, Integer> e = scores.get(i);
 			System.out.println("Pair " + (scores.size() - i) + ":");
 			System.out.println("\t" + e.getKey().getFile1());
