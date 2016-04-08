@@ -77,6 +77,9 @@ static void *do_edit_distance(void *data) {
 JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIEditDistance(
 		JNIEnv *env, jclass cls) {
 
+	progress = 0;
+	current_check = "Edit Distance";
+
 	// The array for the file pair metrics
 	pair_distances = (int*) malloc(pair_count * sizeof(int));
 

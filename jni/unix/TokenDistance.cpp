@@ -1,5 +1,5 @@
-/* Moss.cpp
- * Calculates moss metrics for file pairs
+/* TokenDistance.cpp
+ * Calculates edit distance between token streams for file pairs
  */
 
 // Combocheck libraries
@@ -12,15 +12,15 @@
 #include <cstdio>
 
 // Variables specific to this algorithm
-static int K, W;
-static vector<vector<int>> fingerprints;
 static int *pair_diffs;
+static int **token_arrs;
+static int *token_lens;
 static jclass LanguageUtils;
-static jmethodID GetNormalizedFile;
+static jmethodID GetTokenIDs;
 static JavaVM *jvm;
 
-// Moss preprocessing function (fingerprint generation)
-static void *do_moss_preprocessing(void *data) {
+// Token distance preprocessing function
+static void *do_token_preprocessing(void *data) {
 
 	// Get thread data
 	int idx = *(int*) data;
@@ -30,21 +30,19 @@ static void *do_moss_preprocessing(void *data) {
 	// Starting index in the striped fingerprint array computation
 	while(idx < file_count) {
 
-		// Get the normalized file contents from the LanguageUtils class
+		// Get the tokens via the LanguageUtils class
 		char *fname = file_names[idx];
 		jstring ParamString = env->NewStringUTF(fname);
-		jstring ReturnString = (jstring) env->CallStaticObjectMethod(
-				LanguageUtils, GetNormalizedFile, ParamString);
+		jintArray tokens = (jintArray) env->CallStaticObjectMethod(
+				LanguageUtils, GetTokenIDs, ParamString);
 		env->DeleteLocalRef(ParamString);
-		const char *nstr = env->GetStringUTFChars(ReturnString, 0);
-		int len = env->GetStringUTFLength(ReturnString);
-		char *str = (char*) malloc((len + 1) * sizeof(char));
-		strcpy(str, nstr);
-		env->ReleaseStringUTFChars(ReturnString, nstr);
 
-		// Compute the fingerprint for the file
-		fingerprints[idx] = get_moss_fingerprint(str, len, K, W);
-		free(str);
+		// Set the token data for this file
+		token_lens[idx] = env->GetArrayLength(tokens);
+		token_arrs[idx] = (int*) malloc(sizeof(int) * token_lens[idx]);
+		jint *jtokens = env->GetIntArrayElements(tokens, 0);
+		memcpy(token_arrs[idx], jtokens, sizeof(int) * token_lens[idx]);
+		env->ReleaseIntArrayElements(tokens, jtokens, 0);
 
 		// Update progress
 		pthread_mutex_lock(&progress_mutex);
@@ -60,8 +58,8 @@ static void *do_moss_preprocessing(void *data) {
 	return NULL;
 }
 
-// Moss difference function
-static void *do_moss_difference(void *data) {
+// Token distance difference function
+static void *do_token_difference(void *data) {
 
 	// Starting index in the striped fingerprint array computation
 	int idx = *(int*) data;
@@ -70,13 +68,13 @@ static void *do_moss_difference(void *data) {
 		// Get the file pair arrays
 		int idx1 = file_pairs[idx << 1];
 		int idx2 = file_pairs[(idx << 1) + 1];
-		int *fp1 = fingerprints[idx1].data();
-		int s1 = fingerprints[idx1].size();
-		int *fp2 = fingerprints[idx2].data();
-		int s2 = fingerprints[idx2].size();
+		int *tokens1 = token_arrs[idx1];
+		int *tokens2 = token_arrs[idx2];
+		int len1 = token_lens[idx1];
+		int len2 = token_lens[idx2];
 
-		// Compute the difference for the fingerprints
-		pair_diffs[idx] = edit_distance_int(fp1, s1, fp2, s2);
+		// Compute the difference
+		pair_diffs[idx] = edit_distance_int(tokens1, len1, tokens2, len2);
 
 		// Update progress
 		pthread_mutex_lock(&progress_mutex);
@@ -91,58 +89,52 @@ static void *do_moss_difference(void *data) {
 	return NULL;
 }
 
-// Spawn moss function threads
-JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIMoss(
-	JNIEnv *env, jclass cls) {
+// Spawn token distance function threads
+JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNITokenDistance(
+		JNIEnv *env, jclass cls) {
 
 	progress = 0;
-	current_check = "Moss preprocessing";
-
-	// Set the K and W moss parameters
-	jclass MossAlgorithm = env->FindClass("com/combocheck/algo/MossAlgorithm");
-	jfieldID K_ID = env->GetStaticFieldID(MossAlgorithm, "K", "I");
-	K = (int) env->GetStaticIntField(MossAlgorithm, K_ID);
-	jfieldID W_ID = env->GetStaticFieldID(MossAlgorithm, "W", "I");
-	W = (int) env->GetStaticIntField(MossAlgorithm, W_ID);
+	current_check = "Token distance preprocessing";
 
 	// Initialize the arrays for calculating differences
-	fingerprints = vector<vector<int>>(file_count);
 	pair_diffs = (int*) malloc(sizeof(int) * pair_count);
+	token_arrs = (int**) malloc(sizeof(int*) * file_count);
+	token_lens = (int*) malloc(sizeof(int) * file_count);
 
 	// Create global references for callback parameters
 	LanguageUtils = env->FindClass("com/combocheck/algo/LanguageUtils");
-	GetNormalizedFile = env->GetStaticMethodID(LanguageUtils,
-			"GetNormalizedFile", "(Ljava/lang/String;)Ljava/lang/String;");
+	GetTokenIDs = env->GetStaticMethodID(LanguageUtils, "GetTokenIDs",
+			"(Ljava/lang/String;)[I");
 	env->GetJavaVM(&jvm);
 
 	// Initialize thread pool
 	int tc = thread_count;
 	pthread_t *threads = (pthread_t*) malloc(tc * sizeof(pthread_t));
 
-	// Initialize moss preprocessing threads
+	// Initialize token distance preprocessing threads
 	for(int i = 0; i < thread_count; ++i) {
 		int *thread_idx = (int*) malloc(sizeof(int));
 		*thread_idx = i;
-		pthread_create(threads + i, NULL, do_moss_preprocessing, thread_idx);
+		pthread_create(threads + i, NULL, do_token_preprocessing, thread_idx);
 	}
 
-	// Join moss preprocessing threads
+	// Join token distance preprocessing threads
 	for(int i = 0; i < thread_count; ++i) {
 		pthread_join(threads[i], NULL);
 	}
 
 	progress = 0;
-	current_check = "Moss fingerprint comparisons";
+	current_check = "Token distance comparisons";
 
-	// Initialize moss difference threads
+	// Initialize token distance difference threads
 	completed = 0;
 	for(int i = 0; i < thread_count; ++i) {
 		int *thread_idx = (int*) malloc(sizeof(int));
 		*thread_idx = i;
-		pthread_create(threads + i, NULL, do_moss_difference, thread_idx);
+		pthread_create(threads + i, NULL, do_token_difference, thread_idx);
 	}
 
-	// Join moss difference threads
+	// Join token distance difference threads
 	for(int i = 0; i < thread_count; ++i) {
 		pthread_join(threads[i], NULL);
 	}
@@ -152,6 +144,11 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIMoss(
 	env->SetIntArrayRegion(ret, 0, pair_count, pair_diffs);
 
 	// Clean up
+	for(int i = 0; i < file_count; ++i) {
+		free(token_arrs[i]);
+	}
+	free(token_lens);
+	free(token_arrs);
 	free(threads);
 	free(pair_diffs);
 

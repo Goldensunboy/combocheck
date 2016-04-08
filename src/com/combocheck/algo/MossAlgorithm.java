@@ -24,7 +24,7 @@ public class MossAlgorithm extends Algorithm {
 	 * Construct the default instance of MossAlgorithm
 	 */
 	public MossAlgorithm() {
-		enabled = true;
+		enabled = false;
 		// TODO construct settings dialog
 	}
 	
@@ -45,7 +45,7 @@ public class MossAlgorithm extends Algorithm {
 		
 		// Use the JNI implementation if it is available
 		if(JNIFunctions.isAvailable()) {
-			scoreArray = JNIFunctions.JNIMoss(K, W); // TODO implement
+			scoreArray = JNIFunctions.JNIMoss();
 		} else {
 			scoreArray = new int[Combocheck.FilePairs.size()];
 			

@@ -148,7 +148,7 @@ public class CNormalizer extends CBaseListener implements
 			// file not found
 			return null;
 		}
-		
+
 		// Parse the file, renaming identifier tokens
 		CharStream stream = new ANTLRInputStream(input);
 		Lexer lexer = new CLexer(stream);

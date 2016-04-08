@@ -15,7 +15,7 @@ import com.combocheck.global.FilePair;
  * @author Andrew Wilder
  */
 public class ASTIsomorphismAlgorithm extends Algorithm {
-
+	
 	/** Metadata about all AST tree traversals */
 	private static ParseTree[] ASTroots;
 	private static String[] CanonicalNames;
@@ -44,6 +44,7 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 	private static String GetCanonicalName(ParseTree node) {
 		String ret = "";
 		String[] children = new String[node.getChildCount()];
+		//System.out.println(children.length);
 		for(int i = 0; i < children.length; ++i) {
 			children[i] = GetCanonicalName(node.getChild(i));
 		}
@@ -62,8 +63,8 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 		int[] distanceArray;
 		
 		// Use the JNI implementation if it is available
-		if(JNIFunctions.isAvailable() && false) {
-			distanceArray = JNIFunctions.JNIASTDistance(); // TODO implement
+		if(JNIFunctions.isAvailable()) {
+			distanceArray = JNIFunctions.JNIASTIsomorphism();
 		} else {
 			distanceArray = new int[Combocheck.FilePairs.size()];
 			
@@ -147,6 +148,8 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 				
 				// Get the canonical name for this AST
 				CanonicalNames[index] = GetCanonicalName(root);
+				if(Combocheck.FileOrdering.get(index).equals("/home/andrew/Documents/Spring_2016/CS 6999/combocheck/test/HW08/Chen, Haofeng/bmptoc.c"))
+					System.out.println(CanonicalNames[index]);
 			}
 		}
 	}

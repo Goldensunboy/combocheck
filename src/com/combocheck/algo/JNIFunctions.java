@@ -50,6 +50,12 @@ public final class JNIFunctions {
 	public static native int PollJNIProgress();
 	
 	/**
+	 * Get the name of the current analysis phase
+	 * @return
+	 */
+	public static native String GetJNICurrentCheck();
+	
+	/**
 	 * Edit distance implementation
 	 * @return Metrics per pair
 	 */
@@ -61,11 +67,23 @@ public final class JNIFunctions {
 	 * @param W the winnowing window size
 	 * @return Metrics per pair
 	 */
-	public static native int[] JNIMoss(int K, int W);
+	public static native int[] JNIMoss();
 	
 	/**
 	 * AST distance implementation
 	 * @return Metrics per pair
 	 */
 	public static native int[] JNIASTDistance();
+	
+	/**
+	 * AST distance implementation
+	 * @return Metrics per pair
+	 */
+	public static native int[] JNIASTIsomorphism();
+	
+	/**
+	 * AST distance implementation
+	 * @return Metrics per pair
+	 */
+	public static native int[] JNITokenDistance();
 }

@@ -16,6 +16,7 @@ int thread_count = 8;
 volatile int progress = 0;
 pthread_mutex_t progress_mutex;
 int completed;
+const char *current_check;
 
 // Variables for file lists accessible to algorithms
 int file_count;
@@ -139,7 +140,7 @@ int edit_distance_int(int *arr1, int size1, int *arr2, int size2) {
 static int JRE_String_HashCode(char *str, int len) {
 	int pow = 1;
 	int hash = 0;
-	for(int i = len - 1; i >=0; ++i) {
+	for(int i = len - 1; i >=0; --i) {
 		hash += str[i] * pow;
 		pow *= len;
 	}
@@ -156,8 +157,9 @@ vector<int> get_moss_fingerprint(char *buf, int size, int K, int W) {
 	} else {
 
 		// Compute K-grams
-		int *kgrams = (int*) malloc(sizeof(int) * (size - K + 1));
-		for(int i = 0; i < size - K + 1; ++i) {
+		int ksize = size - K + 1;
+		int *kgrams = (int*) malloc(sizeof(int) * ksize);
+		for(int i = 0; i < ksize; ++i) {
 			kgrams[i] = JRE_String_HashCode(buf + i, K);
 		}
 
@@ -173,7 +175,7 @@ vector<int> get_moss_fingerprint(char *buf, int size, int K, int W) {
 		fingerprint.push_back(smallest);
 		int current = smallest;
 		int current_idx = smallest_idx;
-		for(int i = 1; i < size - K - W + 2; ++i) {
+		for(int i = 1; i < ksize - W + 1; ++i) {
 			smallest = kgrams[i];
 			smallest_idx = i;
 			for(int j = 1; j < W; ++j) {
@@ -188,6 +190,9 @@ vector<int> get_moss_fingerprint(char *buf, int size, int K, int W) {
 				current_idx = smallest_idx;
 			}
 		}
+
+		// Clean up
+		free(kgrams);
 	}
 	return fingerprint;
 }
@@ -204,3 +209,8 @@ JNIEXPORT jint JNICALL Java_com_combocheck_algo_JNIFunctions_PollJNIProgress(
 	return progress;
 }
 
+// Find the name of the current check
+JNIEXPORT jstring JNICALL Java_com_combocheck_algo_JNIFunctions_GetJNICurrentCheck(
+		JNIEnv *env, jclass cls) {
+	return env->NewStringUTF(current_check);
+}

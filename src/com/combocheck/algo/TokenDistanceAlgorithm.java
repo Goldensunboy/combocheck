@@ -14,7 +14,7 @@ public class TokenDistanceAlgorithm extends Algorithm {
 	 * Construct the default instance of ASTDistanceAlgorithm
 	 */
 	public TokenDistanceAlgorithm() {
-		enabled = false;
+		enabled = true;
 		// TODO construct settings dialog
 	}
 	
@@ -34,8 +34,8 @@ public class TokenDistanceAlgorithm extends Algorithm {
 		int[] distanceArray;
 		
 		// Use the JNI implementation if it is available
-		if(JNIFunctions.isAvailable() && false) {
-			distanceArray = JNIFunctions.JNIASTDistance(); // TODO implement
+		if(JNIFunctions.isAvailable()) {
+			distanceArray = JNIFunctions.JNITokenDistance();
 		} else {
 			distanceArray = new int[Combocheck.FilePairs.size()];
 			

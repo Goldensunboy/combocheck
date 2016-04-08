@@ -54,7 +54,7 @@ public class Combocheck {
 	public static HashMap<Integer, FilePair> PairOrdering = null;
 	
 	// How many threads to run concurrently for analysis
-	public static int ThreadCount = 8;
+	public static int ThreadCount = 1;
 
 	/**
 	 * Create the Combocheck frame and initialize UI elements.
@@ -87,6 +87,8 @@ public class Combocheck {
 		
 		long start_time = System.nanoTime();
 		
+		// Run the scans
+		JNIFunctions.SetJNIThreads(ThreadCount);
 		for(Algorithm a : algorithms) {
 			if(a.isEnabled()) {
 				a.analyzeFiles();
@@ -97,7 +99,13 @@ public class Combocheck {
 		double difference = (end_time - start_time)/1e9;
 		System.out.println("Analysis took: " + difference + " seconds");
 		
-		HashMap<FilePair, Integer> map = algorithms[1].getFileScores();
+		HashMap<FilePair, Integer> map = null;
+		for(int i = 0; i < algorithms.length; ++i) {
+			if(algorithms[i].isEnabled()) {
+				map = algorithms[i].getFileScores();
+				break;
+			}
+		}
 		System.out.println("entries: " + map.size());
 		List<Map.Entry<FilePair, Integer>> scores = new ArrayList<Map.Entry<FilePair, Integer>>(map.entrySet());
 		Collections.sort(scores, new Comparator<Map.Entry<FilePair, Integer>>() {
@@ -107,13 +115,18 @@ public class Combocheck {
 				return arg1.getValue() - arg0.getValue();
 			}
 		});
-		int i = 0;
-		for(i = scores.size() - 100; i < scores.size(); ++i) {
+		int i = Math.max(scores.size() - 100, 0);
+		for(; i < scores.size(); ++i) {
 			Map.Entry<FilePair, Integer> e = scores.get(i);
 			System.out.println("Pair " + (scores.size() - i) + ":");
 			System.out.println("\t" + e.getKey().getFile1());
 			System.out.println("\t" + e.getKey().getFile2());
-			System.out.println("\tvalue: " + e.getValue());
+			for(Algorithm a : algorithms) {
+				Map<FilePair, Integer> scoreMap = a.getFileScores();
+				if(a.isEnabled()) {
+					System.out.println("\t" + a + ": " + scoreMap.get(e.getKey()));
+				}
+			}
 		}
 		
 		// TODO change view to review panel
