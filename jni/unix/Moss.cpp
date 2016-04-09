@@ -18,6 +18,7 @@ static int *pair_diffs;
 static jclass LanguageUtils;
 static jmethodID GetNormalizedFile;
 static JavaVM *jvm;
+static jobject normalization;
 
 // Moss preprocessing function (fingerprint generation)
 static void *do_moss_preprocessing(void *data) {
@@ -34,7 +35,7 @@ static void *do_moss_preprocessing(void *data) {
 		char *fname = file_names[idx];
 		jstring ParamString = env->NewStringUTF(fname);
 		jstring ReturnString = (jstring) env->CallStaticObjectMethod(
-				LanguageUtils, GetNormalizedFile, ParamString);
+				LanguageUtils, GetNormalizedFile, ParamString, normalization);
 		env->DeleteLocalRef(ParamString);
 		const char *nstr = env->GetStringUTFChars(ReturnString, 0);
 		int len = env->GetStringUTFLength(ReturnString);
@@ -98,12 +99,17 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIMoss(
 	progress = 0;
 	current_check = "Moss preprocessing";
 
-	// Set the K and W moss parameters
+	// Set the Moss parameters
 	jclass MossAlgorithm = env->FindClass("com/combocheck/algo/MossAlgorithm");
 	jfieldID K_ID = env->GetStaticFieldID(MossAlgorithm, "K", "I");
 	K = (int) env->GetStaticIntField(MossAlgorithm, K_ID);
 	jfieldID W_ID = env->GetStaticFieldID(MossAlgorithm, "W", "I");
 	W = (int) env->GetStaticIntField(MossAlgorithm, W_ID);
+	jfieldID N_ID = env->GetStaticFieldID(MossAlgorithm, "Normalization",
+			"Lcom/combocheck/algo/LanguageUtils$NormalizerType;");
+	if(env->ExceptionOccurred()) env->ExceptionDescribe();
+	normalization = env->GetStaticObjectField(MossAlgorithm, N_ID);
+	if(env->ExceptionOccurred()) env->ExceptionDescribe();
 
 	// Initialize the arrays for calculating differences
 	fingerprints = vector<vector<int>>(file_count);
@@ -112,7 +118,9 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIMoss(
 	// Create global references for callback parameters
 	LanguageUtils = env->FindClass("com/combocheck/algo/LanguageUtils");
 	GetNormalizedFile = env->GetStaticMethodID(LanguageUtils,
-			"GetNormalizedFile", "(Ljava/lang/String;)Ljava/lang/String;");
+			"GetNormalizedFile", "(Ljava/lang/String;Lcom/combocheck/"
+			"algo/LanguageUtils$NormalizerType;)Ljava/lang/String;");
+	if(env->ExceptionOccurred()) env->ExceptionDescribe();
 	env->GetJavaVM(&jvm);
 
 	// Initialize thread pool

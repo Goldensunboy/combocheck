@@ -18,7 +18,7 @@ import com.combocheck.lang.java.JavaNormalizer;
  */
 public final class LanguageUtils {
 	
-	/** Enumeration of the normaliztion types */
+	/** Enumeration of the normalization types */
 	public static enum NormalizerType {
 		NONE            ("None"           ),
 		WHITESPACE_ONLY ("Whitespace only"),
