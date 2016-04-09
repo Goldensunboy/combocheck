@@ -1,5 +1,7 @@
 package com.combocheck.lang;
 
+import com.combocheck.algo.LanguageUtils.NormalizerType;
+
 /**
  * This interface represents the generic base listener for all ANTLR grammars
  * that provides functions on a per-language basis to LanguageUtils
@@ -18,7 +20,7 @@ public interface GenericNormalizer {
 	 * @param filename The file to be normalized
 	 * @return The contents as a String, or null if it couldn't be parsed
 	 */
-	public String CreateNormalizedFile(String filename);
+	public String CreateNormalizedFile(String filename, NormalizerType ntype);
 	
 	/**
 	 * Used by the TokenizationErrorListener to report syntax errors when a

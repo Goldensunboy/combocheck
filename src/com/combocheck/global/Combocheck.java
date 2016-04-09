@@ -38,7 +38,7 @@ public class Combocheck {
 	public static final int PROGRAM_HEIGHT = 700;
 	
 	/** Combocheck globals */
-	private static CombocheckFrame frame = null;
+	public static CombocheckFrame Frame = null;
 	
 	// List of all file pairs
 	public static List<FilePair> FilePairs = null;
@@ -68,8 +68,8 @@ public class Combocheck {
 		if(args.length < 2) {
 			
 			// Normal invocation of Combocheck UI
-			frame = new CombocheckFrame();
-			frame.setVisible(true);
+			Frame = new CombocheckFrame();
+			Frame.setVisible(true);
 			
 		} else {
 			
@@ -131,7 +131,7 @@ public class Combocheck {
 		
 		// TODO change view to review panel
 		
-		frame.getTabbedPane().getScanPanel().getScanControlPanel()
+		Frame.getTabbedPane().getScanPanel().getScanControlPanel()
 				.enableScanButton();
 	}
 }

@@ -15,7 +15,7 @@ import com.combocheck.global.FilePair;
  * @author Andrew Wilder
  */
 public class ASTIsomorphismAlgorithm extends Algorithm {
-	
+
 	/** Metadata about all AST tree traversals */
 	private static ParseTree[] ASTroots;
 	private static String[] CanonicalNames;
@@ -25,7 +25,7 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 	 */
 	public ASTIsomorphismAlgorithm() {
 		enabled = false;
-		// TODO construct settings dialog
+		settingsPanel = null;
 	}
 	
 	/**
@@ -44,7 +44,6 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 	private static String GetCanonicalName(ParseTree node) {
 		String ret = "";
 		String[] children = new String[node.getChildCount()];
-		//System.out.println(children.length);
 		for(int i = 0; i < children.length; ++i) {
 			children[i] = GetCanonicalName(node.getChild(i));
 		}

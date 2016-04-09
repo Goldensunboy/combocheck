@@ -1,11 +1,23 @@
 package com.combocheck.algo;
 
+import java.awt.Container;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import com.combocheck.algo.Algorithm;
+import com.combocheck.algo.LanguageUtils.NormalizerType;
 import com.combocheck.global.Combocheck;
 import com.combocheck.global.FilePair;
 
@@ -16,12 +28,102 @@ import com.combocheck.global.FilePair;
  */
 public class EditDistanceAlgorithm extends Algorithm {
 	
+	/** Normalizer option for edit distance */
+	NormalizerType Normalization = NormalizerType.WHITESPACE_ONLY;
+	
 	/**
 	 * Construct the default instance of EditDistanceAlgorithm
 	 */
 	public EditDistanceAlgorithm() {
 		enabled = false;
-		// TODO construct settings dialog
+		
+		// Construct the settings dialog
+		settingsPanel.setLayout(new BoxLayout(settingsPanel, BoxLayout.Y_AXIS));
+		JPanel npanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		npanel.add(new JLabel("Normalization:"));
+		NormalizerType[] ntypes = {
+			NormalizerType.NONE,
+			NormalizerType.WHITESPACE_ONLY
+		};
+		JComboBox<NormalizerType> ncb = new JComboBox<NormalizerType>(ntypes);
+		ncb.setSelectedItem(Normalization);
+		npanel.add(ncb);
+		settingsPanel.add(npanel);
+		JPanel bpanel = new JPanel();
+		JButton okbutton = new JButton("OK");
+		okbutton.addActionListener(new EditDistanceOKListener(ncb));
+		bpanel.add(okbutton);
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new EditDistanceCancelListener(ncb));
+		bpanel.add(cancelButton);
+		settingsPanel.add(bpanel);
+	}
+	
+	/**
+	 * This class is used to set the algorithm's parameters from the setting
+	 * dialog.
+	 * 
+	 * @author Andrew Wilder
+	 */
+	private class EditDistanceOKListener implements ActionListener {
+		
+		private JComboBox<NormalizerType> ncb;
+		
+		/**
+		 * Construct a new instance of the listener
+		 * @param ncb Combobox for selected normalization type
+		 */
+		public EditDistanceOKListener(JComboBox<NormalizerType> ncb) {
+			this.ncb = ncb;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			
+			// Set the algorithm parameters
+			Normalization = (NormalizerType) ncb.getSelectedItem();
+			
+			// Exit the dialog
+			Container jc = settingsPanel;
+			while(!(jc instanceof JDialog)) {
+				jc = jc.getParent();
+			}
+			JDialog jd = (JDialog) jc;
+			jd.dispose();
+		}
+	}
+	
+	/**
+	 * This class is used to reset the dialog's fields when canceling the dialog
+	 * 
+	 * @author Andrew Wilder
+	 */
+	private class EditDistanceCancelListener implements ActionListener {
+		
+		private JComboBox<NormalizerType> ncb;
+		
+		/**
+		 * Construct a new instance of the listener
+		 * @param ncb Combobox for selected normalization type
+		 */
+		public EditDistanceCancelListener(JComboBox<NormalizerType> ncb) {
+			this.ncb = ncb;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			
+			// Set the algorithm parameters
+			ncb.setSelectedItem(Normalization);
+			
+			// Exit the dialog
+			Container jc = settingsPanel;
+			while(!(jc instanceof JDialog)) {
+				jc = jc.getParent();
+			}
+			JDialog jd = (JDialog) jc;
+			jd.dispose();
+		}
 	}
 	
 	/**

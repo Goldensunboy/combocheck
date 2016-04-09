@@ -21,7 +21,9 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.CharStream;
 
+import com.combocheck.algo.LanguageUtils.NormalizerType;
 import com.combocheck.lang.GenericNormalizer;
+import com.combocheck.lang.TextNormalizer;
 import com.combocheck.lang.TokenizationErrorListener;
 
 /**
@@ -59,6 +61,7 @@ public class CNormalizer extends CBaseListener implements
 			byte[] encoded = Files.readAllBytes(Paths.get(filename));
 			file = new String(encoded);
 		} catch(IOException e) {
+			e.printStackTrace();
 			return null;
 		}
 		
@@ -175,13 +178,15 @@ public class CNormalizer extends CBaseListener implements
 	 * @return The contents as a String, or null if it couldn't be parsed
 	 */
 	@Override
-	public String CreateNormalizedFile(String filename) {
+	public String CreateNormalizedFile(String filename, NormalizerType ntype) {
 		
 		// Get the preprocessed file
 		String input = PreprocessFile(filename);
 		if(input == null) {
 			// file not found
 			return null;
+		} else if(ntype != NormalizerType.VARIABLES) {
+			return new TextNormalizer().CreateNormalizedFile(filename, ntype);
 		}
 		
 		// Parse the file, renaming identifier tokens

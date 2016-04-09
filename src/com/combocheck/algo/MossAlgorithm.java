@@ -1,13 +1,30 @@
 package com.combocheck.algo;
 
+import java.awt.Container;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import com.combocheck.algo.Algorithm;
 import com.combocheck.global.Combocheck;
 import com.combocheck.global.FilePair;
+import com.combocheck.algo.LanguageUtils.NormalizerType;
 
 /**
  * This class represents the MOSS (Measure of Software Similarity) algorithm.
@@ -19,13 +36,144 @@ public class MossAlgorithm extends Algorithm {
 	/** Moss parameters */
 	private static int K = 15; // K-gram size
 	private static int W = 8; // Winnowing window size
+	private static NormalizerType Normalization = NormalizerType.VARIABLES;
 	
 	/**
 	 * Construct the default instance of MossAlgorithm
 	 */
 	public MossAlgorithm() {
 		enabled = false;
-		// TODO construct settings dialog
+		
+		// Construct the settings dialog
+		settingsPanel.setLayout(new BoxLayout(settingsPanel, BoxLayout.Y_AXIS));
+		JPanel kpanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		kpanel.add(new JLabel("K-gram size:"));
+		JTextField ktf = new JTextField(4);
+		ktf.setText("" + K);
+		kpanel.add(ktf);
+		settingsPanel.add(kpanel);
+		JPanel wpanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		wpanel.add(new JLabel("Winnow size:"));
+		JTextField wtf = new JTextField(4);
+		wtf.setText("" + W);
+		wpanel.add(wtf);
+		settingsPanel.add(wpanel);
+		JPanel npanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		npanel.add(new JLabel("Normalization:"));
+		NormalizerType[] ntypes = {
+			NormalizerType.NONE,
+			NormalizerType.WHITESPACE_ONLY,
+			NormalizerType.VARIABLES
+		};
+		JComboBox<NormalizerType> ncb = new JComboBox<NormalizerType>(ntypes);
+		ncb.setSelectedItem(Normalization);
+		npanel.add(ncb);
+		settingsPanel.add(npanel);
+		JPanel bpanel = new JPanel();
+		JButton okbutton = new JButton("OK");
+		okbutton.addActionListener(new MossOKListener(ktf, wtf, ncb));
+		bpanel.add(okbutton);
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new MossCancelListener(ktf, wtf, ncb));
+		bpanel.add(cancelButton);
+		settingsPanel.add(bpanel);
+	}
+	
+	/**
+	 * This class is used to set the algorithm's parameters from the setting
+	 * dialog.
+	 * 
+	 * @author Andrew Wilder
+	 */
+	private class MossOKListener implements ActionListener {
+		
+		private JTextField ktf, wtf;
+		private JComboBox<NormalizerType> ncb;
+		
+		/**
+		 * Construct a new instance of the listener
+		 * @param ktf Text field with K parameter
+		 * @param wtf Text field with W parameter
+		 * @param ncb Combobox for selected normalization type
+		 */
+		public MossOKListener(JTextField ktf, JTextField wtf,
+				JComboBox<NormalizerType> ncb) {
+			this.ktf = ktf;
+			this.wtf = wtf;
+			this.ncb = ncb;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			
+			// Verify that the K and W numbers are valid
+			if(!Pattern.matches("\\d+", ktf.getText())) {
+				JOptionPane.showMessageDialog(Combocheck.Frame,
+						"K is not a valid number", "Input error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			if(!Pattern.matches("\\d+", wtf.getText())) {
+				JOptionPane.showMessageDialog(Combocheck.Frame,
+						"W is not a valid number", "Input error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			// Set the algorithm parameters
+			K = Integer.parseInt(ktf.getText());
+			W = Integer.parseInt(wtf.getText());
+			Normalization = (NormalizerType) ncb.getSelectedItem();
+			
+			// Exit the dialog
+			Container jc = settingsPanel;
+			while(!(jc instanceof JDialog)) {
+				jc = jc.getParent();
+			}
+			JDialog jd = (JDialog) jc;
+			jd.dispose();
+		}
+	}
+
+	/**
+	 * This class is used to reset the dialog's fields when canceling the dialog
+	 * 
+	 * @author Andrew Wilder
+	 */
+	private class MossCancelListener implements ActionListener {
+		
+		private JTextField ktf, wtf;
+		private JComboBox<NormalizerType> ncb;
+		
+		/**
+		 * Construct a new instance of the listener
+		 * @param ktf Text field with K parameter
+		 * @param wtf Text field with W parameter
+		 * @param ncb Combobox for selected normalization type
+		 */
+		public MossCancelListener(JTextField ktf, JTextField wtf,
+				JComboBox<NormalizerType> ncb) {
+			this.ktf = ktf;
+			this.wtf = wtf;
+			this.ncb = ncb;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			
+			// Set the algorithm parameters
+			ktf.setText("" + K);
+			wtf.setText("" + W);
+			ncb.setSelectedItem(Normalization);
+			
+			// Exit the dialog
+			Container jc = settingsPanel;
+			while(!(jc instanceof JDialog)) {
+				jc = jc.getParent();
+			}
+			JDialog jd = (JDialog) jc;
+			jd.dispose();
+		}
 	}
 	
 	/**
@@ -124,7 +272,7 @@ public class MossAlgorithm extends Algorithm {
 			for(int index = initialIndex; index < Combocheck.FileList.size();
 					index += Combocheck.ThreadCount) {
 				String fileString = LanguageUtils.GetNormalizedFile(
-						Combocheck.FileOrdering.get(index));
+						Combocheck.FileOrdering.get(index), Normalization);
 				List<Integer> fingerprint = new ArrayList<Integer>();
 				
 				// If file size is less than K, fingerprint contains one val

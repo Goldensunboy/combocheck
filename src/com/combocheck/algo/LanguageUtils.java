@@ -17,7 +17,21 @@ import com.combocheck.lang.java.JavaNormalizer;
  * @author Andrew Wilder
  */
 public final class LanguageUtils {
-
+	
+	/** Enumeration of the normaliztion types */
+	public static enum NormalizerType {
+		NONE            ("None"           ),
+		WHITESPACE_ONLY ("Whitespace only"),
+		VARIABLES       ("Variables"      );
+		private String desc;
+		private NormalizerType(String desc) {
+			this.desc = desc;
+		}
+		public String toString() {
+			return desc;
+		}
+	};
+	
 	/**
 	 * This function will remove all whitespace from a file and convert all
 	 * identifiers to a single character.
@@ -25,7 +39,8 @@ public final class LanguageUtils {
 	 * @param filename The file to normalize
 	 * @return A string representation of the file
 	 */
-	public static String GetNormalizedFile(String filename) {
+	public static String GetNormalizedFile(String filename,
+			NormalizerType ntype) {
 		
 		// Determine the type of this file
 		GenericNormalizer normalizer = null;
@@ -45,10 +60,10 @@ public final class LanguageUtils {
 		// Fall back on text normalizer on compilation error
 		String ret = null;
 		if(normalizer != null) {
-			ret = normalizer.CreateNormalizedFile(filename);
+			ret = normalizer.CreateNormalizedFile(filename, ntype);
 		}
 		if(ret == null) {
-			ret = new TextNormalizer().CreateNormalizedFile(filename);
+			ret = new TextNormalizer().CreateNormalizedFile(filename, ntype);
 		}
 		
 		return ret != null ? ret : "";

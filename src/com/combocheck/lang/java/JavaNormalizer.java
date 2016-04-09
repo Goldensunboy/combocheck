@@ -14,7 +14,9 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
+import com.combocheck.algo.LanguageUtils.NormalizerType;
 import com.combocheck.lang.GenericNormalizer;
+import com.combocheck.lang.TextNormalizer;
 import com.combocheck.lang.TokenizationErrorListener;
 
 /**
@@ -114,7 +116,7 @@ public class JavaNormalizer extends JavaBaseListener implements
 	 * @return The contents as a String, or null if it couldn't be parsed
 	 */
 	@Override
-	public String CreateNormalizedFile(String filename) {
+	public String CreateNormalizedFile(String filename, NormalizerType ntype) {
 		
 		// Open the file
 		ANTLRFileStream input;
@@ -123,6 +125,11 @@ public class JavaNormalizer extends JavaBaseListener implements
 		} catch(IOException e) {
 			e.printStackTrace();
 			return null;
+		}
+		
+		// If the normalizer type doesn't include variables, use text normalizer
+		if(ntype != NormalizerType.VARIABLES) {
+			return new TextNormalizer().CreateNormalizedFile(filename, ntype);
 		}
 		
 		// Parse the file, renaming identifier tokens

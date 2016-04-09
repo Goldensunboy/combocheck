@@ -72,9 +72,11 @@ public class ScanControlPanel extends JPanel {
 			JCheckBox checkBox = new JCheckBox(a.toString(), a.isEnabled());
 			checkBox.addActionListener(new CheckBoxListener(checkBox, a));
 			algorithmSubPanel.add(checkBox);
-			JButton settingsButton = new JButton("Settings");
-			settingsButton.addActionListener(new SettingsButtonListener(a));
-			algorithmSubPanel.add(settingsButton);
+			if(a.getSettingsPanel() != null) {
+				JButton settingsButton = new JButton("Settings");
+				settingsButton.addActionListener(new SettingsButtonListener(a));
+				algorithmSubPanel.add(settingsButton);
+			}
 			algorithmPanel.add(algorithmSubPanel);
 		}
 		algorithmPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,
@@ -214,13 +216,15 @@ public class ScanControlPanel extends JPanel {
 		 * @param algorithm The associated algorithm
 		 */
 		public SettingsButtonListener(Algorithm algorithm) {
-			dialog = new JDialog();
+			dialog = new JDialog(Combocheck.Frame, true);
 			dialog.setTitle(algorithm + " settings");
-			dialog.add(algorithm.getSettingsDialog());
+			dialog.add(algorithm.getSettingsPanel());
+			dialog.pack();
 		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			dialog.setLocationRelativeTo(Combocheck.Frame);
 			dialog.setVisible(true);
 		}
 	}

@@ -15,7 +15,7 @@ public class TokenDistanceAlgorithm extends Algorithm {
 	 */
 	public TokenDistanceAlgorithm() {
 		enabled = true;
-		// TODO construct settings dialog
+		settingsPanel = null;
 	}
 	
 	/**
