@@ -26,10 +26,10 @@ public class Combocheck {
 	
 	/** Algorithms */
 	public static final Algorithm algorithms[] = {
-		new MossAlgorithm(),
-		new TokenDistanceAlgorithm(),
-		new ASTIsomorphismAlgorithm(),
-		new EditDistanceAlgorithm()
+		new MossAlgorithm(true),
+		new TokenDistanceAlgorithm(true),
+		new ASTIsomorphismAlgorithm(true),
+		new EditDistanceAlgorithm(true)
 	};
 	
 	/** Combocheck constants */

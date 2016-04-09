@@ -23,8 +23,8 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 	/**
 	 * Construct the default instance of ASTIsomorphismAlgorithm
 	 */
-	public ASTIsomorphismAlgorithm() {
-		enabled = false;
+	public ASTIsomorphismAlgorithm(boolean enabled) {
+		super(enabled);
 		settingsPanel = null;
 	}
 	

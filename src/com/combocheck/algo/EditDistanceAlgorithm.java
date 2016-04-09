@@ -4,9 +4,6 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashMap;
 
 import javax.swing.BoxLayout;
@@ -29,13 +26,13 @@ import com.combocheck.global.FilePair;
 public class EditDistanceAlgorithm extends Algorithm {
 	
 	/** Normalizer option for edit distance */
-	private static NormalizerType Normalization = NormalizerType.WHITESPACE_ONLY;
+	private static NormalizerType Normalization = NormalizerType.VARIABLES;
 	
 	/**
 	 * Construct the default instance of EditDistanceAlgorithm
 	 */
-	public EditDistanceAlgorithm() {
-		enabled = false;
+	public EditDistanceAlgorithm(boolean enabled) {
+		super(enabled);
 		
 		// Construct the settings dialog
 		settingsPanel.setLayout(new BoxLayout(settingsPanel, BoxLayout.Y_AXIS));
@@ -148,10 +145,26 @@ public class EditDistanceAlgorithm extends Algorithm {
 		} else {
 			distanceArray = new int[Combocheck.FilePairs.size()];
 			
-			// Run the Java implementation in several threads
+			// Preprocess the files
+			String[] normalizedFiles = new String[Combocheck.FileList.size()];
 			Thread[] threadPool = new Thread[Combocheck.ThreadCount];
 			for(int i = 0; i < Combocheck.ThreadCount; ++i) {
-				threadPool[i] = new EditDistanceThread(distanceArray, i);
+				threadPool[i] = new EDPreprocessingThread(normalizedFiles, i);
+				threadPool[i].start();
+			}
+			try {
+				for(int i = 0; i < Combocheck.ThreadCount; ++i) {
+					threadPool[i].join();
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				return;
+			}
+			
+			// Compare normalized files
+			for(int i = 0; i < Combocheck.ThreadCount; ++i) {
+				threadPool[i] = new EDComparisonThread(distanceArray,
+						normalizedFiles, i);
 				threadPool[i].start();
 			}
 			try {
@@ -172,6 +185,48 @@ public class EditDistanceAlgorithm extends Algorithm {
 	}
 	
 	/**
+	 * This class represents the runnable thread implementation of preprocessing
+	 * for the edit distance algorithm.
+	 * 
+	 * The order in which the file pairs are processed is striped to prevent
+	 * concurrency issues, or the need for mutexes.
+	 * 
+	 * @author Andrew Wilder
+	 */
+	private static class EDPreprocessingThread extends Thread {
+		
+		/** Locals specific to this thread object */
+		private String[] normalizedFiles;
+		private int initialIndex;
+		
+		/**
+		 * Construct a new edit distance preprocessing thread
+		 * @param normalizedFiles Array of normalized file strings
+		 * @param initialIndex Start index for striped processing
+		 */
+		public EDPreprocessingThread(String[] normalizedFiles,
+				int initialIndex) {
+			this.normalizedFiles = normalizedFiles;
+			this.initialIndex = initialIndex;
+		}
+		
+		/**
+		 * Perform edit distance on file pairs
+		 */
+		@Override
+		public void run() {
+			for(int index = initialIndex; index < Combocheck.FileList.size();
+					index += Combocheck.ThreadCount) {
+				
+				// Normalize the file
+				String filename = Combocheck.FileList.get(index);
+				normalizedFiles[index] = LanguageUtils.GetNormalizedFile(
+						filename, Normalization);
+			}
+		}
+	}
+	
+	/**
 	 * This class represents the runnable thread implementation of running the
 	 * edit distance algorithm on several file pairs.
 	 * 
@@ -180,20 +235,24 @@ public class EditDistanceAlgorithm extends Algorithm {
 	 * 
 	 * @author Andrew Wilder
 	 */
-	private static class EditDistanceThread extends Thread {
+	private static class EDComparisonThread extends Thread {
 		
 		/** Locals specific to this thread object */
 		private int[] distanceArray;
 		private int initialIndex;
+		private String[] normalizedFiles;
 		
 		/**
 		 * Construct a new edit distance calculation thread
-		 * @param pairDistance Results mapping of pairs onto edit distance
+		 * @param distanceArray Results from edit distance
+		 * @param normalizedFiles The normalized file string array
 		 * @param initialIndex Start index for striped processing
 		 */
-		public EditDistanceThread(int[] distanceArray, int initialIndex) {
+		public EDComparisonThread(int[] distanceArray, String[] normalizedFiles,
+				int initialIndex) {
 			this.distanceArray = distanceArray;
 			this.initialIndex = initialIndex;
+			this.normalizedFiles = normalizedFiles;
 		}
 		
 		/**
@@ -204,18 +263,11 @@ public class EditDistanceAlgorithm extends Algorithm {
 			for(int index = initialIndex; index < Combocheck.FilePairs.size();
 					index += Combocheck.ThreadCount) {
 				
-				// Read the data as a byte array from the 2 files
-				FilePair pair = Combocheck.PairOrdering.get(index);
-				byte[] file1, file2;
-				try {
-					file1 = Files.readAllBytes(new File(
-							pair.getFile1()).toPath());
-					file2 = Files.readAllBytes(new File(
-							pair.getFile2()).toPath());
-				} catch (IOException e) {
-					e.printStackTrace();
-					continue;
-				}
+				// Get the normalized file strings
+				int idx1 = Combocheck.FilePairInts[index << 1];
+				int idx2 = Combocheck.FilePairInts[(index << 1) + 1];
+				String file1 = normalizedFiles[idx1];
+				String file2 = normalizedFiles[idx2];
 				
 				// Calculate edit distance
 				distanceArray[index] = Algorithm.EditDistance(file1, file2);

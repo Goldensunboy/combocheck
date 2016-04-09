@@ -23,6 +23,14 @@ public abstract class Algorithm {
 			Integer>();
 	
 	/**
+	 * Construct the Algorithm with an enabled value
+	 * @param enabled Whether or not this algorithm will be used in the scan
+	 */
+	protected Algorithm(boolean enabled) {
+		this.enabled = enabled;
+	}
+	
+	/**
 	 * Perform edit distance on two int arrays
 	 * @param arr1 First array
 	 * @param arr2 Second array

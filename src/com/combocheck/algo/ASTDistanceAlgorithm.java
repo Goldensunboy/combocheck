@@ -34,9 +34,9 @@ public class ASTDistanceAlgorithm extends Algorithm {
 	/**
 	 * Construct the default instance of ASTDistanceAlgorithm
 	 */
-	public ASTDistanceAlgorithm() {
-		enabled = true;
-		// TODO construct settings dialog
+	public ASTDistanceAlgorithm(boolean enabled) {
+		super(enabled);
+		settingsPanel = null;
 	}
 	
 	/**

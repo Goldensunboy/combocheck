@@ -48,8 +48,6 @@ static void *do_ed_preprocessing(void *data) {
 		normalized_files[idx] = str;
 		file_lens[idx] = strlen(str);
 
-		printf("%s: %s\n", fname, str); fflush(stdout);
-
 		// Update progress
 		pthread_mutex_lock(&progress_mutex);
 		progress = 100 * ++completed / file_count;

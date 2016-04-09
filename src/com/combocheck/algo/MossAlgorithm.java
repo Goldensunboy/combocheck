@@ -39,8 +39,8 @@ public class MossAlgorithm extends Algorithm {
 	/**
 	 * Construct the default instance of MossAlgorithm
 	 */
-	public MossAlgorithm() {
-		enabled = false;
+	public MossAlgorithm(boolean enabled) {
+		super(enabled);
 		
 		// Construct the settings dialog
 		settingsPanel.setLayout(new BoxLayout(settingsPanel, BoxLayout.Y_AXIS));

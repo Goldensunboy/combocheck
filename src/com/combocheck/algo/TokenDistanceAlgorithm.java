@@ -13,8 +13,8 @@ public class TokenDistanceAlgorithm extends Algorithm {
 	/**
 	 * Construct the default instance of ASTDistanceAlgorithm
 	 */
-	public TokenDistanceAlgorithm() {
-		enabled = true;
+	public TokenDistanceAlgorithm(boolean enabled) {
+		super(enabled);
 		settingsPanel = null;
 	}
 	
