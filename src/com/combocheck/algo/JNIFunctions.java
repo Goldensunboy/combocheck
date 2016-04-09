@@ -15,7 +15,7 @@ public final class JNIFunctions {
 	static {
 		try {
 			System.loadLibrary("JNIalgo");
-			libraryLoaded = true;
+			libraryLoaded = false;
 			System.out.println("Loaded JNI algorithm library");
 		} catch(UnsatisfiedLinkError e) {
 			System.out.println("Could not find JNI algorithm library");

@@ -14,51 +14,73 @@
 
 // Variables specific to this algorithm
 static int *pair_distances;
+static char **normalized_files;
+static int *file_lens;
+static jclass LanguageUtils;
+static jmethodID GetNormalizedFile;
+static JavaVM *jvm;
+static jobject normalization;
+
+// Edit distance preprocessing function
+static void *do_ed_preprocessing(void *data) {
+
+	// Get thread data
+	int idx = *(int*) data;
+	JNIEnv *env;
+	jvm->AttachCurrentThread((void**) &env, NULL);
+
+	// Starting index in the striped fingerprint array computation
+	while(idx < file_count) {
+
+		// Get the normalized file contents from the LanguageUtils class
+		char *fname = file_names[idx];
+		jstring ParamString = env->NewStringUTF(fname);
+		jstring ReturnString = (jstring) env->CallStaticObjectMethod(
+				LanguageUtils, GetNormalizedFile, ParamString, normalization);
+		env->DeleteLocalRef(ParamString);
+		const char *nstr = env->GetStringUTFChars(ReturnString, 0);
+		int len = env->GetStringUTFLength(ReturnString);
+		char *str = (char*) malloc((len + 1) * sizeof(char));
+		strcpy(str, nstr);
+		env->ReleaseStringUTFChars(ReturnString, nstr);
+
+		// Set the information for this file
+		normalized_files[idx] = str;
+		file_lens[idx] = strlen(str);
+
+		printf("%s: %s\n", fname, str); fflush(stdout);
+
+		// Update progress
+		pthread_mutex_lock(&progress_mutex);
+		progress = 100 * ++completed / file_count;
+		pthread_mutex_unlock(&progress_mutex);
+
+		idx += thread_count;
+	}
+
+	// Clean up
+	free(data);
+	jvm->DetachCurrentThread();
+	return NULL;
+}
 
 // Function to be run by the threads
-static void *do_edit_distance(void *data) {
+static void *do_ed_difference(void *data) {
 
 	// Starting index in the striped distance array computation
 	int idx = *(int*) data;
 	while(idx < pair_count) {
 
-		// Get the names of the files for the next calculation
+		// Get the buffers for the files for the edit distance calculation
 		int idx1 = file_pairs[idx << 1];
 		int idx2 = file_pairs[(idx << 1) + 1];
-		char *fname1 = file_names[idx1];
-		char *fname2 = file_names[idx2];
+		char *buf1 = normalized_files[idx1];
+		char *buf2 = normalized_files[idx2];
+		int size1 = file_lens[idx1];
+		int size2 = file_lens[idx2];
 
-		// Read files into buffers
-		FILE *f1, *f2;
-		if(!(f1 = fopen(fname1, "r")) || !(f2 = fopen(fname2, "r"))) {
-			fprintf(stderr, "Error opening file: %s\n", strerror(errno));
-			if(!f1) {
-				fprintf(stderr, "File: %s\n", fname1);
-			} else {
-				fprintf(stderr, "File: %s\n", fname2);
-			}
-			pair_distances[idx] = 0x7FFFFFFF;
-		} else {
-			fseek(f1, 0, SEEK_END);
-			long size1 = ftell(f1);
-			fseek(f1, 0, SEEK_SET);
-			char *buf1 = (char*) malloc(size1);
-			fread(buf1, size1, 1, f1);
-			fseek(f2, 0, SEEK_END);
-			long size2 = ftell(f2);
-			fseek(f2, 0, SEEK_SET);
-			char *buf2 = (char*) malloc(size2);
-			fread(buf2, size2, 1, f2);
-			fclose(f1);
-			fclose(f2);
-
-			// Get the edit distance
-			pair_distances[idx] = edit_distance_char(buf1, size1, buf2, size2);
-
-			// Clean up
-			free(buf1);
-			free(buf2);
-		}
+		// Get the edit distance
+		pair_distances[idx] = edit_distance_char(buf1, size1, buf2, size2);
 
 		// Update progress
 		pthread_mutex_lock(&progress_mutex);
@@ -78,24 +100,53 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIEditDistanc
 		JNIEnv *env, jclass cls) {
 
 	progress = 0;
-	current_check = "Edit distance";
+	current_check = "Edit distance preprocessing";
+
+	// Get callback parameters
+	jclass EDAlgorithm = env->FindClass(
+			"com/combocheck/algo/EditDistanceAlgorithm");
+	jfieldID N_ID = env->GetStaticFieldID(EDAlgorithm, "Normalization",
+			"Lcom/combocheck/algo/LanguageUtils$NormalizerType;");
+	normalization = env->GetStaticObjectField(EDAlgorithm, N_ID);
+	LanguageUtils = env->FindClass("com/combocheck/algo/LanguageUtils");
+	GetNormalizedFile = env->GetStaticMethodID(LanguageUtils,
+			"GetNormalizedFile", "(Ljava/lang/String;Lcom/combocheck/"
+			"algo/LanguageUtils$NormalizerType;)Ljava/lang/String;");
+	env->GetJavaVM(&jvm);
 
 	// The array for the file pair metrics
-	pair_distances = (int*) malloc(pair_count * sizeof(int));
+	pair_distances = (int*) malloc(sizeof(int) * pair_count);
+	normalized_files = (char**) malloc(sizeof(char*) * file_count);
+	file_lens = (int*) malloc(sizeof(int) * file_count);
 
 	// Initialize thread pool
 	int tc = thread_count;
 	pthread_t *threads = (pthread_t*) malloc(tc * sizeof(pthread_t));
 
-	// Initialize edit distance threads
+	// Initialize edit distance preprocessing threads
 	completed = 0;
 	for(int i = 0; i < thread_count; ++i) {
 		int *thread_idx = (int*) malloc(sizeof(int));
 		*thread_idx = i;
-		pthread_create(threads + i, NULL, do_edit_distance, thread_idx);
+		pthread_create(threads + i, NULL, do_ed_preprocessing, thread_idx);
 	}
 
-	// Join edit distance threads
+	// Join edit distance preprocessing threads
+	for(int i = 0; i < thread_count; ++i) {
+		pthread_join(threads[i], NULL);
+	}
+
+
+
+	// Initialize edit distance difference threads
+	completed = 0;
+	for(int i = 0; i < thread_count; ++i) {
+		int *thread_idx = (int*) malloc(sizeof(int));
+		*thread_idx = i;
+		pthread_create(threads + i, NULL, do_ed_difference, thread_idx);
+	}
+
+	// Join edit distance difference threads
 	for(int i = 0; i < thread_count; ++i) {
 		pthread_join(threads[i], NULL);
 	}
@@ -107,6 +158,11 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIEditDistanc
 	// Clean up
 	free(threads);
 	free(pair_distances);
+	for(int i = 0; i < file_count; ++i) {
+		free(normalized_files[i]);
+	}
+	free(normalized_files);
+	free(file_lens);
 
 	return ret;
 }

@@ -14,6 +14,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 import com.combocheck.algo.Algorithm;
 import com.combocheck.global.Combocheck;
@@ -116,7 +117,6 @@ public class ScanControlPanel extends JPanel {
 				}
 				
 				// Initiate the scan process
-				setEnabled(false);
 				Combocheck.performScans();
 			}
 		});
@@ -219,6 +219,8 @@ public class ScanControlPanel extends JPanel {
 			dialog = new JDialog(Combocheck.Frame, true);
 			dialog.setTitle(algorithm + " settings");
 			dialog.add(algorithm.getSettingsPanel());
+			dialog.setDefaultCloseOperation(
+					WindowConstants.DO_NOTHING_ON_CLOSE);
 			dialog.pack();
 		}
 		

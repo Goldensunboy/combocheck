@@ -54,7 +54,7 @@ public class Combocheck {
 	public static HashMap<Integer, FilePair> PairOrdering = null;
 	
 	// How many threads to run concurrently for analysis
-	public static int ThreadCount = 1;
+	public static int ThreadCount = 8;
 
 	/**
 	 * Create the Combocheck frame and initialize UI elements.

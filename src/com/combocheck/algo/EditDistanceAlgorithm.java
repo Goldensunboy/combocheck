@@ -29,7 +29,7 @@ import com.combocheck.global.FilePair;
 public class EditDistanceAlgorithm extends Algorithm {
 	
 	/** Normalizer option for edit distance */
-	NormalizerType Normalization = NormalizerType.WHITESPACE_ONLY;
+	private static NormalizerType Normalization = NormalizerType.WHITESPACE_ONLY;
 	
 	/**
 	 * Construct the default instance of EditDistanceAlgorithm
@@ -43,7 +43,8 @@ public class EditDistanceAlgorithm extends Algorithm {
 		npanel.add(new JLabel("Normalization:"));
 		NormalizerType[] ntypes = {
 			NormalizerType.NONE,
-			NormalizerType.WHITESPACE_ONLY
+			NormalizerType.WHITESPACE_ONLY,
+			NormalizerType.VARIABLES
 		};
 		JComboBox<NormalizerType> ncb = new JComboBox<NormalizerType>(ntypes);
 		ncb.setSelectedItem(Normalization);

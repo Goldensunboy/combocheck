@@ -107,9 +107,7 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIMoss(
 	W = (int) env->GetStaticIntField(MossAlgorithm, W_ID);
 	jfieldID N_ID = env->GetStaticFieldID(MossAlgorithm, "Normalization",
 			"Lcom/combocheck/algo/LanguageUtils$NormalizerType;");
-	if(env->ExceptionOccurred()) env->ExceptionDescribe();
 	normalization = env->GetStaticObjectField(MossAlgorithm, N_ID);
-	if(env->ExceptionOccurred()) env->ExceptionDescribe();
 
 	// Initialize the arrays for calculating differences
 	fingerprints = vector<vector<int>>(file_count);
@@ -120,7 +118,6 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIMoss(
 	GetNormalizedFile = env->GetStaticMethodID(LanguageUtils,
 			"GetNormalizedFile", "(Ljava/lang/String;Lcom/combocheck/"
 			"algo/LanguageUtils$NormalizerType;)Ljava/lang/String;");
-	if(env->ExceptionOccurred()) env->ExceptionDescribe();
 	env->GetJavaVM(&jvm);
 
 	// Initialize thread pool
