@@ -9,13 +9,13 @@ package com.combocheck.algo;
 public final class JNIFunctions {
 
 	/** Whether or not the JNI library is available */
-	private static boolean libraryLoaded = false;
+	private static boolean JNIEnable = false;
 	
 	// Load the JNI algorithm library
 	static {
 		try {
 			System.loadLibrary("JNIalgo");
-			libraryLoaded = true;
+			JNIEnable = true;
 			System.out.println("Loaded JNI algorithm library");
 		} catch(UnsatisfiedLinkError e) {
 			System.out.println("Could not find JNI algorithm library");
@@ -25,8 +25,16 @@ public final class JNIFunctions {
 	/**
 	 * @return Whether or not the library for JNI functions is loaded
 	 */
-	public static boolean isAvailable() {
-		return libraryLoaded;
+	public static boolean JNIEnabled() {
+		return JNIEnable;
+	}
+	
+	/**
+	 * Set the state of JNI being enabled
+	 * @param enabled
+	 */
+	public static void SetJNIEnabled(boolean enabled) {
+		JNIEnable = enabled;
 	}
 	
 	/**

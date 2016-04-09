@@ -77,7 +77,7 @@ public class Combocheck {
 				System.out.println(s);
 			}
 		}
-		JNIFunctions.isAvailable(); // Statically pre-loads JNI library
+		JNIFunctions.JNIEnabled(); // Statically pre-loads JNI library
 	}
 	
 	/**

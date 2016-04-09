@@ -222,7 +222,7 @@ public class ScanEntryListPanel extends JScrollPane {
 			Combocheck.FilePairInts = filePairsArray;
 			
 			// If the JNI algorithm library is available, set metadata in it
-			if(JNIFunctions.isAvailable()) {
+			if(JNIFunctions.JNIEnabled()) {
 				String[] fileListArray = new String[Combocheck.FileList.size()];
 				index = 0;
 				for(String filename : Combocheck.FileList) {

@@ -190,7 +190,7 @@ public class MossAlgorithm extends Algorithm {
 		int[] scoreArray;
 		
 		// Use the JNI implementation if it is available
-		if(JNIFunctions.isAvailable()) {
+		if(JNIFunctions.JNIEnabled()) {
 			scoreArray = JNIFunctions.JNIMoss();
 		} else {
 			scoreArray = new int[Combocheck.FilePairs.size()];

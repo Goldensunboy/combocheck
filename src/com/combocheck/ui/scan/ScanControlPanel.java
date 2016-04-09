@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import com.combocheck.algo.Algorithm;
+import com.combocheck.algo.JNIFunctions;
 import com.combocheck.global.Combocheck;
 import com.combocheck.global.FilePair;
 
@@ -121,7 +122,46 @@ public class ScanControlPanel extends JPanel {
 			}
 		});
 		scanButtonPanel.add(scanButton);
+		
+		// Add a toggle for using JNI functions
+		JCheckBox JNIcheckbox = new JCheckBox("Use native algorithms");
+		JNIcheckbox.addActionListener(new JNIToggleListener(JNIcheckbox));
+		if(JNIFunctions.JNIEnabled()) {
+			JNIcheckbox.setSelected(true);
+		} else {
+			JNIcheckbox.setSelected(false);
+			JNIcheckbox.setEnabled(false);
+		}
+		scanButtonPanel.add(JNIcheckbox);
 		add(scanButtonPanel);
+	}
+	
+	/**
+	 * This class represents a listener for changing the state of whether or not
+	 * the native library will be used when scanning
+	 * 
+	 * @author Andrew Wilder
+	 */
+	private static class JNIToggleListener implements ActionListener {
+
+		/** The checkbox this listener is attached to */
+		private JCheckBox checkBox;
+		
+		/**
+		 * Construct the JNIToggleListener
+		 * @param checkBox The instance of JCheckBox to attach to
+		 */
+		public JNIToggleListener(JCheckBox checkBox) {
+			this.checkBox = checkBox;
+		}
+		
+		/**
+		 * Set the field in JNIFunctions appropriately
+		 */
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JNIFunctions.SetJNIEnabled(checkBox.isSelected());
+		}
 	}
 	
 	/**

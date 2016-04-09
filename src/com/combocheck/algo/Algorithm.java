@@ -1,5 +1,6 @@
 package com.combocheck.algo;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
 

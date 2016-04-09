@@ -88,7 +88,7 @@ public class ASTDistanceAlgorithm extends Algorithm {
 		int[] distanceArray;
 		
 		// Use the JNI implementation if it is available
-		if(JNIFunctions.isAvailable() && false) {
+		if(JNIFunctions.JNIEnabled() && false) {
 			distanceArray = JNIFunctions.JNIASTDistance();
 		} else {
 			distanceArray = new int[Combocheck.FilePairs.size()];
