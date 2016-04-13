@@ -13,6 +13,7 @@ extern volatile int progress;
 extern pthread_mutex_t progress_mutex;
 extern int completed;
 extern const char *current_check;
+extern int checks_completed;
 
 // Variables for file lists accessible to algorithms
 extern int file_count;

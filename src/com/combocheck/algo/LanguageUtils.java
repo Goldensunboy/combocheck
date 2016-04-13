@@ -78,19 +78,22 @@ public final class LanguageUtils {
 	public static ParseTree GetAST(String filename) {
 		
 		// Determine type of file
+		ParseTree pt = null;
 		int i = filename.lastIndexOf('.');
 		if(i > 0) {
 			String ext = filename.substring(i + 1);
 			switch(ext) {
 			case "c":
-				return new CNormalizer().CreateAST(filename);
+				pt = new CNormalizer().CreateAST(filename);
+				break;
 			case "java":
-				return new JavaNormalizer().CreateAST(filename);
+				pt = new JavaNormalizer().CreateAST(filename);
+				break;
 			}
 		}
 		
 		// No recognized extension
-		return null;
+		return pt;
 	}
 	
 	/**

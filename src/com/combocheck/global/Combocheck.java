@@ -1,12 +1,9 @@
 package com.combocheck.global;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+
+import javax.swing.JDialog;
 
 import com.combocheck.algo.ASTIsomorphismAlgorithm;
 import com.combocheck.algo.Algorithm;
@@ -15,6 +12,7 @@ import com.combocheck.algo.JNIFunctions;
 import com.combocheck.algo.MossAlgorithm;
 import com.combocheck.algo.TokenDistanceAlgorithm;
 import com.combocheck.ui.CombocheckFrame;
+import com.combocheck.ui.ProgressDialog;
 
 /**
  * This class represents the main executable class of Combocheck.
@@ -29,7 +27,7 @@ public class Combocheck {
 		new MossAlgorithm(true),
 		new TokenDistanceAlgorithm(true),
 		new ASTIsomorphismAlgorithm(true),
-		new EditDistanceAlgorithm(true)
+		new EditDistanceAlgorithm(false)
 	};
 	
 	/** Combocheck constants */
@@ -54,7 +52,7 @@ public class Combocheck {
 	public static HashMap<Integer, FilePair> PairOrdering = null;
 	
 	// How many threads to run concurrently for analysis
-	public static int ThreadCount = 8;
+	public static int ThreadCount = 1;
 
 	/**
 	 * Create the Combocheck frame and initialize UI elements.
@@ -85,53 +83,39 @@ public class Combocheck {
 	 */
 	public static void performScans() {
 		
-		long start_time = System.nanoTime();
-		
-		// Run the scans
-		JNIFunctions.SetJNIThreads(ThreadCount);
-		for(Algorithm a : algorithms) {
-			if(a.isEnabled()) {
-				a.analyzeFiles();
-			}
+		// Start scans
+		if(JNIFunctions.JNIEnabled()) {
+			JNIFunctions.JNIClearChecksCompleted();
+		} else {
+			Algorithm.checksCompleted = 0;
 		}
+		new ScanThread().start();
 		
-		long end_time = System.nanoTime();
-		double difference = (end_time - start_time)/1e9;
-		System.out.println("Analysis took: " + difference + " seconds");
-		
-		HashMap<FilePair, Integer> map = null;
-		for(int i = 0; i < algorithms.length; ++i) {
-			if(algorithms[i].isEnabled()) {
-				map = algorithms[i].getFileScores();
-				break;
-			}
-		}
-		System.out.println("entries: " + map.size());
-		List<Map.Entry<FilePair, Integer>> scores = new ArrayList<Map.Entry<FilePair, Integer>>(map.entrySet());
-		Collections.sort(scores, new Comparator<Map.Entry<FilePair, Integer>>() {
-			@Override
-			public int compare(Entry<FilePair, Integer> arg0,
-					Entry<FilePair, Integer> arg1) {
-				return arg1.getValue() - arg0.getValue();
-			}
-		});
-		int i = Math.max(scores.size() - 100, 0);
-		for(; i < scores.size(); ++i) {
-			Map.Entry<FilePair, Integer> e = scores.get(i);
-			System.out.println("Pair " + (scores.size() - i) + ":");
-			System.out.println("\t" + e.getKey().getFile1());
-			System.out.println("\t" + e.getKey().getFile2());
+		// Create progress dialog
+		JDialog pd = new ProgressDialog();
+		pd.setVisible(true);
+		Combocheck.Frame.revalidate();
+	}
+	
+	/**
+	 * This is a class meant to run the scans on a different thread from
+	 * Combocheck's UI
+	 * 
+	 * @author Andrew Wilder
+	 */
+	private static class ScanThread extends Thread {
+		@Override
+		public void run() {
 			for(Algorithm a : algorithms) {
-				Map<FilePair, Integer> scoreMap = a.getFileScores();
 				if(a.isEnabled()) {
-					System.out.println("\t" + a + ": " + scoreMap.get(e.getKey()));
+					long start_time = System.nanoTime();
+					a.analyzeFiles();
+					long end_time = System.nanoTime();
+					double difference = (end_time - start_time)/1e9;
+					System.out.println("Completed scan \"" + a.toString() +
+							"\" in " + difference + " seconds");
 				}
 			}
 		}
-		
-		// TODO change view to review panel
-		
-		Frame.getTabbedPane().getScanPanel().getScanControlPanel()
-				.enableScanButton();
 	}
 }

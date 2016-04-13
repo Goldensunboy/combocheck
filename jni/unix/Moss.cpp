@@ -135,6 +135,7 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIMoss(
 	for(int i = 0; i < thread_count; ++i) {
 		pthread_join(threads[i], NULL);
 	}
+	++checks_completed;
 
 	progress = 0;
 	current_check = "Moss fingerprint comparisons";
@@ -151,6 +152,7 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIMoss(
 	for(int i = 0; i < thread_count; ++i) {
 		pthread_join(threads[i], NULL);
 	}
+	++checks_completed;
 
 	// Construct the jintArray to return the data
 	jintArray ret = env->NewIntArray(pair_count);

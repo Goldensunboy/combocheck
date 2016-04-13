@@ -1,8 +1,8 @@
 package com.combocheck.algo;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -17,6 +17,13 @@ import com.combocheck.global.FilePair;
  */
 public abstract class Algorithm {
 	
+	/** Global progress information */
+	protected static int progress = Integer.MAX_VALUE;
+	protected static int completed;
+	private static String currentCheck = "";
+	public static Semaphore progressMutex = new Semaphore(1);
+	public static int checksCompleted;
+	
 	/** Whether or not this algorithm is enabled */
 	protected boolean enabled;
 	protected JPanel settingsPanel = new JPanel();
@@ -29,6 +36,30 @@ public abstract class Algorithm {
 	 */
 	protected Algorithm(boolean enabled) {
 		this.enabled = enabled;
+	}
+	
+	/**
+	 * Update the name of the current check being performed
+	 * @param msg The name
+	 */
+	public static void updateCurrentCheckName(String msg) {
+		currentCheck = msg;
+	}
+	
+	/**
+	 * Poll the progress of the current algorithm being run
+	 * @return Percentage completion of the current algorithm stage
+	 */
+	public static int PollProgress() {
+		return progress;
+	}
+	
+	/**
+	 * Get the name of the current algorithm check stage
+	 * @return The name
+	 */
+	public static String GetCurrentCheck() {
+		return currentCheck;
 	}
 	
 	/**

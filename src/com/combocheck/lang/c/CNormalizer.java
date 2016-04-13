@@ -103,8 +103,6 @@ public class CNormalizer extends CBaseListener implements
 		return strippedFile;
 	}
 	
-	
-	
 	/**
 	 * Create an AST from a file
 	 * @param filename the file

@@ -196,6 +196,10 @@ public class MossAlgorithm extends Algorithm {
 			scoreArray = new int[Combocheck.FilePairs.size()];
 			
 			// Preprocess the files
+			completed = 0;
+			progress = 0;
+			updateCurrentCheckName("Moss preprocessing");
+			
 			@SuppressWarnings("unchecked")
 			List<Integer>[] fingerprints =
 					new ArrayList[Combocheck.FileList.size()];
@@ -212,8 +216,13 @@ public class MossAlgorithm extends Algorithm {
 				e.printStackTrace();
 				return;
 			}
+			++checksCompleted;
 			
 			// Compare fingerprints for all pairs
+			completed = 0;
+			progress = 0;
+			updateCurrentCheckName("Moss fingerprint comparisons");
+			
 			for(int i = 0; i < Combocheck.ThreadCount; ++i) {
 				threadPool[i] = new MossComparisonThread(scoreArray,
 						fingerprints, i);
@@ -227,6 +236,7 @@ public class MossAlgorithm extends Algorithm {
 				e.printStackTrace();
 				return;
 			}
+			++checksCompleted;
 		}
 		
 		// Construct the pair scores mapping
@@ -267,7 +277,8 @@ public class MossAlgorithm extends Algorithm {
 		 */
 		@Override
 		public void run() {
-			for(int index = initialIndex; index < Combocheck.FileList.size();
+			int fileCount = Combocheck.FileList.size();
+			for(int index = initialIndex; index < fileCount;
 					index += Combocheck.ThreadCount) {
 				String fileString = LanguageUtils.GetNormalizedFile(
 						Combocheck.FileOrdering.get(index), Normalization);
@@ -316,6 +327,15 @@ public class MossAlgorithm extends Algorithm {
 				// Add the fingerprint to the array being constructed
 				Collections.sort(fingerprint);
 				fingerprints[index] = fingerprint;
+				
+				// Update progress
+				try {
+					progressMutex.acquire();
+					progress = 100 * ++completed / fileCount;
+					progressMutex.release();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -354,7 +374,8 @@ public class MossAlgorithm extends Algorithm {
 		 */
 		@Override
 		public void run() {
-			for(int index = initialIndex; index < Combocheck.FilePairs.size();
+			int pairCount = Combocheck.FilePairs.size();
+			for(int index = initialIndex; index < pairCount;
 					index += Combocheck.ThreadCount) {
 				
 				// Get the data arrays
@@ -373,6 +394,15 @@ public class MossAlgorithm extends Algorithm {
 					a2[i] = fp2.get(i);
 				}
 				scoreArray[index] = Algorithm.EditDistance(a1, a2);
+				
+				// Update progress
+				try {
+					progressMutex.acquire();
+					progress = 100 * ++completed / pairCount;
+					progressMutex.release();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

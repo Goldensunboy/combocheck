@@ -146,6 +146,10 @@ public class EditDistanceAlgorithm extends Algorithm {
 			distanceArray = new int[Combocheck.FilePairs.size()];
 			
 			// Preprocess the files
+			completed = 0;
+			progress = 0;
+			updateCurrentCheckName("Edit distance preprocessing");
+			
 			String[] normalizedFiles = new String[Combocheck.FileList.size()];
 			Thread[] threadPool = new Thread[Combocheck.ThreadCount];
 			for(int i = 0; i < Combocheck.ThreadCount; ++i) {
@@ -160,8 +164,13 @@ public class EditDistanceAlgorithm extends Algorithm {
 				e.printStackTrace();
 				return;
 			}
+			++checksCompleted;
 			
 			// Compare normalized files
+			completed = 0;
+			progress = 0;
+			updateCurrentCheckName("Edit distance comparisons");
+			
 			for(int i = 0; i < Combocheck.ThreadCount; ++i) {
 				threadPool[i] = new EDComparisonThread(distanceArray,
 						normalizedFiles, i);
@@ -175,6 +184,7 @@ public class EditDistanceAlgorithm extends Algorithm {
 				e.printStackTrace();
 				return;
 			}
+			++checksCompleted;
 		}
 		
 		// Construct the pair scores mapping
@@ -215,13 +225,23 @@ public class EditDistanceAlgorithm extends Algorithm {
 		 */
 		@Override
 		public void run() {
-			for(int index = initialIndex; index < Combocheck.FileList.size();
+			int fileCount = Combocheck.FileList.size();
+			for(int index = initialIndex; index < fileCount;
 					index += Combocheck.ThreadCount) {
 				
 				// Normalize the file
 				String filename = Combocheck.FileList.get(index);
 				normalizedFiles[index] = LanguageUtils.GetNormalizedFile(
 						filename, Normalization);
+				
+				// Update progress
+				try {
+					progressMutex.acquire();
+					progress = 100 * ++completed / fileCount;
+					progressMutex.release();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -260,7 +280,8 @@ public class EditDistanceAlgorithm extends Algorithm {
 		 */
 		@Override
 		public void run() {
-			for(int index = initialIndex; index < Combocheck.FilePairs.size();
+			int pairCount = Combocheck.FilePairs.size();
+			for(int index = initialIndex; index < pairCount;
 					index += Combocheck.ThreadCount) {
 				
 				// Get the normalized file strings
@@ -271,6 +292,15 @@ public class EditDistanceAlgorithm extends Algorithm {
 				
 				// Calculate edit distance
 				distanceArray[index] = Algorithm.EditDistance(file1, file2);
+				
+				// Update progress
+				try {
+					progressMutex.acquire();
+					progress = 100 * ++completed / pairCount;
+					progressMutex.release();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

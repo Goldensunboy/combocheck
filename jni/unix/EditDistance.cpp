@@ -133,8 +133,10 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIEditDistanc
 	for(int i = 0; i < thread_count; ++i) {
 		pthread_join(threads[i], NULL);
 	}
+	++checks_completed;
 
-
+	progress = 0;
+	current_check = "Edit distance comparisons";
 
 	// Initialize edit distance difference threads
 	completed = 0;
@@ -148,6 +150,7 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIEditDistanc
 	for(int i = 0; i < thread_count; ++i) {
 		pthread_join(threads[i], NULL);
 	}
+	++checks_completed;
 
 	// Construct the jintArray to return the data
 	jintArray ret = env->NewIntArray(pair_count);

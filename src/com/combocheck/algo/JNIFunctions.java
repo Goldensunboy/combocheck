@@ -58,6 +58,17 @@ public final class JNIFunctions {
 	public static native int PollJNIProgress();
 	
 	/**
+	 * Set the checks completed count for native implementation to 0
+	 */
+	public static native void JNIClearChecksCompleted();
+	
+	/**
+	 * Get the number of checks completed by native implementation
+	 * @return
+	 */
+	public static native int JNIPollChecksCompleted();
+	
+	/**
 	 * Get the name of the current analysis phase
 	 * @return
 	 */

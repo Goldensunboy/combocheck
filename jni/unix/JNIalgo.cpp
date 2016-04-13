@@ -17,6 +17,7 @@ volatile int progress = 0;
 pthread_mutex_t progress_mutex;
 int completed;
 const char *current_check;
+int checks_completed;
 
 // Variables for file lists accessible to algorithms
 int file_count;
@@ -213,4 +214,16 @@ JNIEXPORT jint JNICALL Java_com_combocheck_algo_JNIFunctions_PollJNIProgress(
 JNIEXPORT jstring JNICALL Java_com_combocheck_algo_JNIFunctions_GetJNICurrentCheck(
 		JNIEnv *env, jclass cls) {
 	return env->NewStringUTF(current_check);
+}
+
+// Reset the number of checks completed
+JNIEXPORT void JNICALL Java_com_combocheck_algo_JNIFunctions_JNIClearChecksCompleted(
+		JNIEnv *env, jclass cls) {
+	checks_completed = 0;
+}
+
+// Poll how many checks have completed
+JNIEXPORT jint JNICALL Java_com_combocheck_algo_JNIFunctions_JNIPollChecksCompleted(
+		JNIEnv *env, jclass cls) {
+	return (jint) checks_completed;
 }

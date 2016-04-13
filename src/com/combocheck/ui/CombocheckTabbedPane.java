@@ -63,4 +63,11 @@ public class CombocheckTabbedPane extends JTabbedPane {
 	public ReportPanel getReportPanel() {
 		return reportPanel;
 	}
+	
+	/**
+	 * Automatically switch to viewing the review panel
+	 */
+	public void switchToReviewPanel() {
+		this.setSelectedComponent(reviewPanel);
+	}
 }

@@ -68,6 +68,10 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 			distanceArray = new int[Combocheck.FilePairs.size()];
 			
 			// Preprocess the files
+			completed = 0;
+			progress = 0;
+			updateCurrentCheckName("AST isomorphism preprocessing");
+			
 			ASTroots = new ParseTree[Combocheck.FileList.size()];
 			CanonicalNames = new String[Combocheck.FileList.size()];
 			Thread[] threadPool = new Thread[Combocheck.ThreadCount];
@@ -84,8 +88,13 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 				e.printStackTrace();
 				return;
 			}
+			++checksCompleted;
 			
-			// Perform tree edit distance on pairs
+			// Perform AST isomorphism check on pairs
+			completed = 0;
+			progress = 0;
+			updateCurrentCheckName("AST isomorphism comparisons");
+			
 			for(int i = 0; i < Combocheck.ThreadCount; ++i) {
 				threadPool[i] = new IsoComparisonThread(distanceArray, i);
 				threadPool[i].start();
@@ -98,6 +107,7 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 				e.printStackTrace();
 				return;
 			}
+			++checksCompleted;
 		}
 		
 		// Construct the pair scores mapping
@@ -134,7 +144,8 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 		 */
 		@Override
 		public void run() {
-			for(int index = initialIndex; index < Combocheck.FileList.size();
+			int fileCount = Combocheck.FileList.size();
+			for(int index = initialIndex; index < fileCount;
 					index += Combocheck.ThreadCount) {
 				
 				// Get the AST for this file
@@ -147,8 +158,15 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 				
 				// Get the canonical name for this AST
 				CanonicalNames[index] = GetCanonicalName(root);
-				if(Combocheck.FileOrdering.get(index).equals("/home/andrew/Documents/Spring_2016/CS 6999/combocheck/test/HW08/Chen, Haofeng/bmptoc.c"))
-					System.out.println(CanonicalNames[index]);
+				
+				// Update progress
+				try {
+					progressMutex.acquire();
+					progress = 100 * ++completed / fileCount;
+					progressMutex.release();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -183,7 +201,8 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 		 */
 		@Override
 		public void run() {
-			for(int index = initialIndex; index < Combocheck.FilePairs.size();
+			int pairCount = Combocheck.FilePairs.size();
+			for(int index = initialIndex; index < pairCount;
 					index += Combocheck.ThreadCount) {
 				
 				// Get the AST indices
@@ -198,6 +217,15 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 				
 				// Calculate similarity as longest common substring
 				distanceArray[index] = str1.equals(str2) ? 0 : 1;
+				
+				// Update progress
+				try {
+					progressMutex.acquire();
+					progress = 100 * ++completed / pairCount;
+					progressMutex.release();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
