@@ -132,7 +132,7 @@ static void *do_iso_difference(void *data) {
 JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIASTIsomorphism(
 	JNIEnv *env, jclass cls) {
 
-	progress = 0;
+	progress = completed = 0;
 	current_check = "AST isomorphism preprocessing";
 
 	// Initialize the arrays for calculating differences
@@ -166,7 +166,7 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIASTIsomorph
 	}
 	++checks_completed;
 
-	progress = 0;
+	progress = completed = 0;
 	current_check = "AST isomorphism comparisons";
 
 	// Initialize AST isomorphism difference threads

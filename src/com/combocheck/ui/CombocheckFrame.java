@@ -29,7 +29,6 @@ public class CombocheckFrame extends JFrame {
 			@Override
 			public void windowClosing(WindowEvent event) {
 				// TODO
-				System.out.println("User closed Combocheck");
 				System.exit(0);
 			}
 		});

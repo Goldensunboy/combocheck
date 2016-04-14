@@ -2,6 +2,8 @@ package com.combocheck.ui.scan;
 
 import javax.swing.JSplitPane;
 
+import com.combocheck.global.Combocheck;
+
 /**
  * This class represents the panel in which the user selects files and folders
  * for scanning
@@ -11,7 +13,7 @@ import javax.swing.JSplitPane;
 public class ScanPanel extends JSplitPane {
 	
 	/** Constants for the scan panel */
-	public static final double DIVIDER_RATIO = 0.3;
+	private static final double DIVIDER_RATIO = 0.3;
 	
 	/** Instances of UI components */
 	ScanEntryListPanel scanEntryListPanel = new ScanEntryListPanel();
@@ -29,6 +31,7 @@ public class ScanPanel extends JSplitPane {
 		// Add the UI components
 		setLeftComponent(scanEntryListPanel);
 		setRightComponent(scanControlPanel);
+		setDividerLocation((int) (DIVIDER_RATIO * Combocheck.PROGRAM_WIDTH));
 	}
 	
 	/**

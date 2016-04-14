@@ -93,7 +93,7 @@ static void *do_token_difference(void *data) {
 JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNITokenDistance(
 		JNIEnv *env, jclass cls) {
 
-	progress = 0;
+	progress = completed = 0;
 	current_check = "Token distance preprocessing";
 
 	// Initialize the arrays for calculating differences
@@ -124,7 +124,7 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNITokenDistan
 	}
 	++checks_completed;
 
-	progress = 0;
+	progress = completed = 0;
 	current_check = "Token distance comparisons";
 
 	// Initialize token distance difference threads

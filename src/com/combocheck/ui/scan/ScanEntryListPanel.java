@@ -41,7 +41,7 @@ public class ScanEntryListPanel extends JScrollPane {
 			ENTRY_BORDER_SIZE, ENTRY_BORDER_SIZE, ENTRY_BORDER_SIZE);
 	
 	/** The list of scan entries housed in this scan panel component */
-	private Collection<ScanEntry> scanEntries = new ArrayList<ScanEntry>();
+	private List<ScanEntry> scanEntries = new ArrayList<ScanEntry>();
 	private JPanel contentPane = new JPanel();
 	
 	/**

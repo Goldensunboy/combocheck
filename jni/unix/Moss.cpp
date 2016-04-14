@@ -96,7 +96,7 @@ static void *do_moss_difference(void *data) {
 JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIMoss(
 	JNIEnv *env, jclass cls) {
 
-	progress = 0;
+	progress = completed = 0;
 	current_check = "Moss preprocessing";
 
 	// Set the Moss parameters
@@ -137,7 +137,7 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIMoss(
 	}
 	++checks_completed;
 
-	progress = 0;
+	progress = completed = 0;
 	current_check = "Moss fingerprint comparisons";
 
 	// Initialize moss difference threads

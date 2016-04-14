@@ -97,7 +97,7 @@ static void *do_ed_difference(void *data) {
 JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIEditDistance(
 		JNIEnv *env, jclass cls) {
 
-	progress = 0;
+	progress = completed = 0;
 	current_check = "Edit distance preprocessing";
 
 	// Get callback parameters
@@ -135,7 +135,7 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIEditDistanc
 	}
 	++checks_completed;
 
-	progress = 0;
+	progress = completed = 0;
 	current_check = "Edit distance comparisons";
 
 	// Initialize edit distance difference threads

@@ -37,7 +37,7 @@ public class ScanControlPanel extends JPanel {
 	 * @param filePairs Collection of file pairs to work with
 	 */
 	public ScanControlPanel(final ScanEntryListPanel scanEntryListPanel) {
-		this.scanEntryListPanel = scanEntryListPanel;
+		ScanControlPanel.scanEntryListPanel = scanEntryListPanel;
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		// Add scan entry buttons
@@ -118,7 +118,7 @@ public class ScanControlPanel extends JPanel {
 				}
 				
 				// Initiate the scan process
-				Combocheck.performScans();
+				Combocheck.PerformScans();
 			}
 		});
 		scanButtonPanel.add(scanButton);

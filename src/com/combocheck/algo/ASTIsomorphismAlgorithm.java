@@ -113,7 +113,9 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 		// Construct the pair scores mapping
 		fileScores = new HashMap<FilePair, Integer>();
 		for(int i = 0; i < distanceArray.length; ++i) {
-			fileScores.put(Combocheck.PairOrdering.get(i), distanceArray[i]);
+			if(distanceArray[i] != Integer.MAX_VALUE) {
+				fileScores.put(Combocheck.PairOrdering.get(i), distanceArray[i]);
+			}
 		}
 	}
 	

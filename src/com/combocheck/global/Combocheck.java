@@ -25,14 +25,14 @@ public class Combocheck {
 	/** Algorithms */
 	public static final Algorithm algorithms[] = {
 		new MossAlgorithm(true),
-		new TokenDistanceAlgorithm(true),
+		new TokenDistanceAlgorithm(false),
 		new ASTIsomorphismAlgorithm(true),
 		new EditDistanceAlgorithm(false)
 	};
 	
 	/** Combocheck constants */
 	public static final String PROGRAM_TITLE = "Combocheck";
-	public static final int PROGRAM_WIDTH = 900;
+	public static final int PROGRAM_WIDTH = 1100;
 	public static final int PROGRAM_HEIGHT = 700;
 	
 	/** Combocheck globals */
@@ -52,7 +52,7 @@ public class Combocheck {
 	public static HashMap<Integer, FilePair> PairOrdering = null;
 	
 	// How many threads to run concurrently for analysis
-	public static int ThreadCount = 1;
+	public static int ThreadCount = 8;
 
 	/**
 	 * Create the Combocheck frame and initialize UI elements.
@@ -81,11 +81,12 @@ public class Combocheck {
 	/**
 	 * Perform the selected scans over the file pairs
 	 */
-	public static void performScans() {
+	public static void PerformScans() {
 		
 		// Start scans
 		if(JNIFunctions.JNIEnabled()) {
 			JNIFunctions.JNIClearChecksCompleted();
+			JNIFunctions.SetJNIThreads(ThreadCount);
 		} else {
 			Algorithm.checksCompleted = 0;
 		}
@@ -95,6 +96,13 @@ public class Combocheck {
 		JDialog pd = new ProgressDialog();
 		pd.setVisible(true);
 		Combocheck.Frame.revalidate();
+	}
+	
+	/**
+	 * This function will cancel a running scan.
+	 */
+	public static void CancelScan() {
+		// TODO this will be tricky since Thread.stop() is deprecated
 	}
 	
 	/**
@@ -111,7 +119,7 @@ public class Combocheck {
 					long start_time = System.nanoTime();
 					a.analyzeFiles();
 					long end_time = System.nanoTime();
-					double difference = (end_time - start_time)/1e9;
+					double difference = (end_time - start_time) / 1e9;
 					System.out.println("Completed scan \"" + a.toString() +
 							"\" in " + difference + " seconds");
 				}

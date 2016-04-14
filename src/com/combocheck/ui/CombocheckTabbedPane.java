@@ -34,8 +34,6 @@ public class CombocheckTabbedPane extends JTabbedPane {
 		
 		// Add the tabs
 		addTab("Scan", scanPanel);
-		scanPanel.setDividerLocation((int) (ScanPanel.DIVIDER_RATIO *
-				Combocheck.PROGRAM_WIDTH));
 		addTab("Review", reviewPanel);
 		addTab("Report", reportPanel);
 	}

@@ -4,10 +4,13 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -39,8 +42,18 @@ public class ProgressDialog extends JDialog implements ActionListener {
 	 */
 	public ProgressDialog() {
 		super(Combocheck.Frame, true);
+		
+		// Set dialog properties
 		setTitle("Scan progress");
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent event) {
+				Combocheck.CancelScan();
+				tm.stop();
+				dispose();
+			}
+		});
 		
 		// Set up progress bars and UI
 		JPanel contentPanel = new JPanel();
@@ -64,6 +77,22 @@ public class ProgressDialog extends JDialog implements ActionListener {
 				}
 			}
 		}
+		
+		// Add a cancel button
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Combocheck.CancelScan();
+				tm.stop();
+				dispose();
+			}
+		});
+		JPanel cancelPanel = new JPanel();
+		cancelPanel.add(cancelButton);
+		contentPanel.add(cancelPanel);
+		
+		// Position and size the dialog
 		add(contentPanel);
 		pack();
 		setLocationRelativeTo(Combocheck.Frame);
@@ -115,7 +144,9 @@ public class ProgressDialog extends JDialog implements ActionListener {
 				// Stop the timer, close the dialog, switch to review tab
 				tm.stop();
 				dispose();
-				Combocheck.Frame.getTabbedPane().switchToReviewPanel();
+				CombocheckTabbedPane ctb = Combocheck.Frame.getTabbedPane();
+				ctb.getReviewPanel().populatePanel();
+				ctb.switchToReviewPanel();
 				return;
 			}
 			prevProgress = currProgress;
