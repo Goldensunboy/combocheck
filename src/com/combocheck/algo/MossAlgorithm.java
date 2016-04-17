@@ -43,6 +43,7 @@ public class MossAlgorithm extends Algorithm {
 		super(enabled);
 		
 		// Construct the settings dialog
+		settingsPanel = new JPanel();
 		settingsPanel.setLayout(new BoxLayout(settingsPanel, BoxLayout.Y_AXIS));
 		JPanel kpanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
 		kpanel.add(new JLabel("K-gram size:"));
@@ -240,9 +241,9 @@ public class MossAlgorithm extends Algorithm {
 		}
 		
 		// Construct the pair scores mapping
-		fileScores = new HashMap<FilePair, Integer>();
+		pairScores = new HashMap<FilePair, Integer>();
 		for(int i = 0; i < scoreArray.length; ++i) {
-			fileScores.put(Combocheck.PairOrdering.get(i), scoreArray[i]);
+			pairScores.put(Combocheck.PairOrdering.get(i), scoreArray[i]);
 		}
 	}
 	

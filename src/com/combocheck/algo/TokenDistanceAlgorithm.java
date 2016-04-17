@@ -81,9 +81,9 @@ public class TokenDistanceAlgorithm extends Algorithm {
 		}
 		
 		// Construct the pair scores mapping
-		fileScores = new HashMap<FilePair, Integer>();
+		pairScores = new HashMap<FilePair, Integer>();
 		for(int i = 0; i < distanceArray.length; ++i) {
-			fileScores.put(Combocheck.PairOrdering.get(i), distanceArray[i]);
+			pairScores.put(Combocheck.PairOrdering.get(i), distanceArray[i]);
 		}
 	}
 	

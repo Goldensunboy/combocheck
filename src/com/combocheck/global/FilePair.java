@@ -1,5 +1,6 @@
 package com.combocheck.global;
 
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
@@ -9,8 +10,9 @@ import java.util.Iterator;
  * 
  * @author Andrew Wilder
  */
-public class FilePair {
-
+public class FilePair implements Serializable {
+	private static final long serialVersionUID = -2038579416703885903L;
+	
 	/** The files that this object represents */
 	private String file1;
 	private String file2;

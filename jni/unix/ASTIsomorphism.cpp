@@ -112,7 +112,7 @@ static void *do_iso_difference(void *data) {
 		if(cname1 && cname2) {
 			pair_diffs[idx] = strcmp(cname1, cname2) ? 1 : 0;
 		} else {
-			pair_diffs[idx] = 0x7FFFFFFF;
+			pair_diffs[idx] = 2;
 		}
 
 		// Update progress

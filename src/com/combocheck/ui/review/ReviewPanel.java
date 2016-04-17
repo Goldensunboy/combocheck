@@ -9,28 +9,34 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.combocheck.algo.Algorithm;
 import com.combocheck.global.Combocheck;
 import com.combocheck.global.FilePair;
+import com.combocheck.global.ScanLoader;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JRadioButton;
 import javax.swing.JViewport;
 import javax.swing.border.Border;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  * This class represents the panel in which the user reviews similarity metrics
@@ -49,8 +55,6 @@ public class ReviewPanel extends JPanel {
 			ENTRY_BORDER_SIZE, ENTRY_BORDER_SIZE, ENTRY_BORDER_SIZE);
 	
 	/** UI elements and fields for the review panel */
-	private List<Algorithm> algos;
-	private Algorithm selectedAlgo;
 	private JSplitPane contentPanel =
 			new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
 	private JPanel algoSelectorPanel = new JPanel();
@@ -58,12 +62,18 @@ public class ReviewPanel extends JPanel {
 			JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 			JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	private JPanel pairScrollPaneContents = new JPanel();
-	private List<PairEntry> entries = new ArrayList<PairEntry>();
-	private FilePair selectedPair = null;
-	private ReviewGraph graph = new ReviewGraph();
 	private JLabel selectedPairLabel = new JLabel("");
 	private JLabel selectedFile1Label = new JLabel("");
 	private JLabel selectedFile2Label = new JLabel("");
+	private JButton loadButton, saveButton;
+	private JFileChooser jfc = new JFileChooser();
+	
+	/** Fields for the review panel */
+	private List<Algorithm> algos;
+	private Algorithm selectedAlgo;
+	private List<PairEntry> entries = new ArrayList<PairEntry>();
+	private FilePair selectedPair = null;
+	private ReviewGraph graph = new ReviewGraph();
 	
 	/**
 	 * Construct the review panel and its components
@@ -85,17 +95,92 @@ public class ReviewPanel extends JPanel {
 		controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
 		contentPanel.setRightComponent(controlPanel);
 		
+		// Construct load and save buttons
+		//jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+				"Combocheck scans (scn)", "scn");
+		jfc.setFileFilter(filter);
+		ActionListener loadListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				int result = -1;
+				File loadFile = null;
+				// Show dialog until selected file exists, or user cancels
+				do {
+					if(result == JFileChooser.APPROVE_OPTION) {
+						JOptionPane.showMessageDialog(Combocheck.Frame,
+								"File \"" + loadFile.getName() +
+								"\" doesn't exist", "Error loading file",
+								JOptionPane.ERROR_MESSAGE);
+					}
+					result = jfc.showOpenDialog(Combocheck.Frame);
+					loadFile = jfc.getSelectedFile();
+				} while(result == JFileChooser.APPROVE_OPTION &&
+						!loadFile.exists());
+				if(result == JFileChooser.APPROVE_OPTION) {
+					String filename = loadFile.getAbsolutePath();
+					ScanLoader.loadScan(filename);
+					populatePanel();
+				}
+			}
+		};
+		loadButton = new JButton("Load scan");
+		loadButton.addActionListener(loadListener);
+		saveButton = new JButton("Save scan");
+		saveButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int result = -1;
+				File saveFile = null;
+				// If selected file exists, keep showing choose file dialog as
+				// long as user presses NO until they press CANCEL or OK
+				do {
+					if(result == JFileChooser.APPROVE_OPTION) {
+						int result2 = JOptionPane.showConfirmDialog(
+								Combocheck.Frame, "File \"" +
+								saveFile.getName() + "\" exists. Overwrite?");
+						if(result2 == JOptionPane.OK_OPTION) {
+							break;
+						} else if(result2 == JOptionPane.CANCEL_OPTION) {
+							return;
+						}
+					}
+					result = jfc.showSaveDialog(Combocheck.Frame);
+					saveFile = jfc.getSelectedFile();
+				} while(result == JFileChooser.APPROVE_OPTION &&
+						saveFile.exists());
+				if(result == JFileChooser.APPROVE_OPTION) {
+					if(!Pattern.matches(".*\\.scn", saveFile.toString())) {
+						saveFile = new File(saveFile + ".scn");
+					}
+					String filename = saveFile.getAbsolutePath();
+					ScanLoader.saveScan(filename);
+				}
+			}
+		});
+		
+		// Configure the load/save panel
+		JPanel loadSavePanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		loadSavePanel.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createTitledBorder("Load/Save"),
+				BorderFactory.createEmptyBorder(5,5,5,5)));
+		loadSavePanel.add(saveButton);
+		loadSavePanel.add(loadButton);
+		
 		// Configure the algorithm selection panel
 		algoSelectorPanel.setLayout(
 				new BoxLayout(algoSelectorPanel, BoxLayout.Y_AXIS));
 		algoSelectorPanel.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createTitledBorder("Algorithms:"),
+				BorderFactory.createTitledBorder("Algorithms"),
 				BorderFactory.createEmptyBorder(5,5,5,5)));
-		controlPanel.add(algoSelectorPanel);
+		
+		// Add algorithm selection panel and load/save panels in one row
+		JPanel algoLSpanel = new JPanel(new GridLayout(1, 2));
+		algoLSpanel.add(algoSelectorPanel);
+		algoLSpanel.add(loadSavePanel);
+		controlPanel.add(algoLSpanel);
 		controlPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,
 				controlPanel.getPreferredSize().height));
-		contentPanel.setDividerLocation((int)
-				(DIVIDER_RATIO * Combocheck.PROGRAM_WIDTH));
 		
 		// Set up graph
 		JPanel graphPanel = new JPanel();
@@ -108,7 +193,7 @@ public class ReviewPanel extends JPanel {
 		JPanel prunePanel = new JPanel();
 		prunePanel.setLayout(new BoxLayout(prunePanel, BoxLayout.Y_AXIS));
 		prunePanel.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createTitledBorder("Data set pruning:"),
+				BorderFactory.createTitledBorder("Data set pruning"),
 				BorderFactory.createEmptyBorder(5,5,5,5)));
 		JPanel removePairPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
 		JButton removePairButton = new JButton("Remove");
@@ -151,8 +236,15 @@ public class ReviewPanel extends JPanel {
 				prunePanel.getPreferredSize().height));
 		controlPanel.add(prunePanel);
 		
+		contentPanel.setDividerLocation((int)
+				(DIVIDER_RATIO * Combocheck.PROGRAM_WIDTH));
+		
 		// Message before populating the review panel
-		add(new JLabel("You must perform a scan first."));
+		add(new JLabel(
+				"You must first perform a scan, or load a previous one:"));
+		JButton loadButton2 = new JButton("Load scan");
+		loadButton2.addActionListener(loadListener);
+		add(loadButton2);
 	}
 	
 	/**
@@ -161,7 +253,7 @@ public class ReviewPanel extends JPanel {
 	 */
 	private void prune(FilePair fp) {
 		for(Algorithm a : algos) {
-			a.getFileScores().remove(fp);
+			a.getPairScores().remove(fp);
 		}
 	}
 	
@@ -171,7 +263,7 @@ public class ReviewPanel extends JPanel {
 	 */
 	private void prune(String fname) {
 		List<FilePair> toRemove = new ArrayList<FilePair>();
-		for(FilePair fp : algos.get(0).getFileScores().keySet()) {
+		for(FilePair fp : algos.get(0).getPairScores().keySet()) {
 			if(fname.equals(fp.getFile1()) || fname.equals(fp.getFile2())) {
 				toRemove.add(fp);
 			}
@@ -213,6 +305,9 @@ public class ReviewPanel extends JPanel {
 	 * elements once scanning has completed.
 	 */
 	public void populatePanel() {
+		
+		// TODO remove this in production
+		//Combocheck.printStatistics();
 		
 		// Populate the algorithm selection
 		algoSelectorPanel.removeAll();
@@ -263,7 +358,7 @@ public class ReviewPanel extends JPanel {
 		// Retrieve and sort the pairs
 		List<Map.Entry<FilePair, Integer>> scores =
 				new ArrayList<Map.Entry<FilePair, Integer>>();
-		for(Map.Entry<FilePair, Integer> e : a.getFileScores().entrySet()) {
+		for(Map.Entry<FilePair, Integer> e : a.getPairScores().entrySet()) {
 			scores.add(e);
 		}
 		Collections.sort(scores,

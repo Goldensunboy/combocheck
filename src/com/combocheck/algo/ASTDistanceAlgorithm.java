@@ -17,7 +17,7 @@ import com.combocheck.global.FilePair;
  * @author Andrew Wilder
  */
 public class ASTDistanceAlgorithm extends Algorithm {
-
+	
 	/** Metadata about all AST tree traversals */
 	// dim 1: Which file's AST
 	private static ParseTree[] ASTroots;
@@ -128,9 +128,9 @@ public class ASTDistanceAlgorithm extends Algorithm {
 		}
 		
 		// Construct the pair scores mapping
-		fileScores = new HashMap<FilePair, Integer>();
+		pairScores = new HashMap<FilePair, Integer>();
 		for(int i = 0; i < distanceArray.length; ++i) {
-			fileScores.put(Combocheck.PairOrdering.get(i), distanceArray[i]);
+			pairScores.put(Combocheck.PairOrdering.get(i), distanceArray[i]);
 		}
 	}
 	

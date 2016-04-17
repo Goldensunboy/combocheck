@@ -1,5 +1,6 @@
 package com.combocheck.algo;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
@@ -26,8 +27,8 @@ public abstract class Algorithm {
 	
 	/** Whether or not this algorithm is enabled */
 	protected boolean enabled;
-	protected JPanel settingsPanel = new JPanel();
-	protected HashMap<FilePair, Integer> fileScores = new HashMap<FilePair,
+	protected JPanel settingsPanel = null;
+	protected HashMap<FilePair, Integer> pairScores = new HashMap<FilePair,
 			Integer>();
 	
 	/**
@@ -203,8 +204,16 @@ public abstract class Algorithm {
 	/**
 	 * @return The mapping of file pairs onto analysis scores
 	 */
-	public HashMap<FilePair, Integer> getFileScores() {
-		return fileScores;
+	public HashMap<FilePair, Integer> getPairScores() {
+		return pairScores;
+	}
+	
+	/**
+	 * Used in loading scans
+	 * @param fileScores Saved pair score mapping
+	 */
+	public void setPairScores(HashMap<FilePair, Integer> pairScores) {
+		this.pairScores = pairScores;
 	}
 	
 	/**

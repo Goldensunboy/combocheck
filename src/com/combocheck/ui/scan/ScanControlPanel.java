@@ -43,7 +43,7 @@ public class ScanControlPanel extends JPanel {
 		// Add scan entry buttons
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
 		buttonPanel.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createTitledBorder("Add scan entries:"),
+				BorderFactory.createTitledBorder("Add scan entries"),
 				BorderFactory.createEmptyBorder(5,5,5,5)));
 		JButton regularFolderButton = new JButton("Normal folder");
 		regularFolderButton.addActionListener(new AddFolderButtonListener(
@@ -66,7 +66,7 @@ public class ScanControlPanel extends JPanel {
 		algorithmPanel.setLayout(new BoxLayout(algorithmPanel,
 				BoxLayout.Y_AXIS));
 		algorithmPanel.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createTitledBorder("Algorithms:"),
+				BorderFactory.createTitledBorder("Algorithms"),
 				BorderFactory.createEmptyBorder(5,5,5,5)));
 		for(final Algorithm a : Combocheck.algorithms) {
 			JPanel algorithmSubPanel = new JPanel(new FlowLayout(

@@ -35,6 +35,7 @@ public class EditDistanceAlgorithm extends Algorithm {
 		super(enabled);
 		
 		// Construct the settings dialog
+		settingsPanel = new JPanel();
 		settingsPanel.setLayout(new BoxLayout(settingsPanel, BoxLayout.Y_AXIS));
 		JPanel npanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
 		npanel.add(new JLabel("Normalization:"));
@@ -188,9 +189,9 @@ public class EditDistanceAlgorithm extends Algorithm {
 		}
 		
 		// Construct the pair scores mapping
-		fileScores = new HashMap<FilePair, Integer>();
+		pairScores = new HashMap<FilePair, Integer>();
 		for(int i = 0; i < distanceArray.length; ++i) {
-			fileScores.put(Combocheck.PairOrdering.get(i), distanceArray[i]);
+			pairScores.put(Combocheck.PairOrdering.get(i), distanceArray[i]);
 		}
 	}
 	

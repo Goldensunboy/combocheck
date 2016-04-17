@@ -1,7 +1,11 @@
 package com.combocheck.global;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Comparator;
 
 import javax.swing.JDialog;
 
@@ -124,6 +128,104 @@ public class Combocheck {
 							"\" in " + difference + " seconds");
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Print score statistics, ordered by a sum of squares of algorithm scores
+	 * after normalization per algorithm for equal weighting
+	 */
+	public static void printStatistics() {
+		
+		// How many algorithms are enabled?
+		int enabled = 0;
+		for(Algorithm a : algorithms) {
+			if(a.isEnabled()) {
+				++enabled;
+			}
+		}
+		
+		// Get the algorithm averages
+		double[] avg = new double[enabled];
+		int idx = 0;
+		for(Algorithm a : algorithms) {
+			if(a.isEnabled()) {
+				double sum = 0;
+				for(Map.Entry<FilePair, Integer> e :
+						a.getPairScores().entrySet()) {
+					sum += e.getValue();
+				}
+				avg[idx++] = sum / a.getPairScores().entrySet().size();
+			}
+		}
+		
+		// Get the normalization factors
+		double[] norm = new double[enabled];
+		double avgSum = 0;
+		for(double d : avg) {
+			avgSum += d;
+		}
+		double avgavg = avgSum / avg.length;
+		for(int i = 0; i < norm.length; ++i) {
+			norm[i] = avgavg / avg[i];
+		}
+		
+		// Sort the file pairs
+		List<FilePair> fps = new ArrayList<FilePair>(FilePairs);
+		Comparator<FilePair> comp = new SquareComparator(norm);
+		Collections.sort(fps, comp);
+		
+		// Print out the statistics for the files
+		idx = 0;
+		for(FilePair fp : fps) {
+			System.out.println("Pair " + idx++ + ":");
+			System.out.println("\t" + fp.getShortenedFile1());
+			System.out.println("\t" + fp.getShortenedFile2());
+			for(Algorithm a : algorithms) {
+				if(a.isEnabled()) {
+					Map<FilePair, Integer> m = a.getPairScores();
+					System.out.println("\t" + a + ": " + m.get(fp));
+				}
+			}
+			System.out.println();
+		}
+	}
+	
+	/**
+	 * This class represents a Comparator that will use squares of scores to
+	 * compare files, after normalizing scores using a normalization factor per
+	 * algorithm.
+	 * 
+	 * @author Andrew Wilder
+	 */
+	private static class SquareComparator implements Comparator<FilePair> {
+
+		/** Normalization factors */
+		private double[] norm;
+		
+		/**
+		 * Create a new SqaureComparator with a given normalization vector
+		 * @param norm The normalization vector
+		 */
+		public SquareComparator(double[] norm) {
+			this.norm = norm;
+		}
+		
+		/**
+		 * Compare two FilePair objects using their scores from the algorithms
+		 */
+		@Override
+		public int compare(FilePair fp1, FilePair fp2) {
+			double score1 = 0, score2 = 0;
+			int idx = 0;
+			for(Algorithm a : algorithms) {
+				if(a.isEnabled()) {
+					Map<FilePair, Integer> m = a.getPairScores();
+					score1 += Math.pow(m.get(fp1) * norm[idx], 2);
+					score2 += Math.pow(m.get(fp2) * norm[idx++], 2);
+				}
+			}
+			return (int) (score1 - score2);
 		}
 	}
 }

@@ -111,11 +111,9 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 		}
 		
 		// Construct the pair scores mapping
-		fileScores = new HashMap<FilePair, Integer>();
+		pairScores = new HashMap<FilePair, Integer>();
 		for(int i = 0; i < distanceArray.length; ++i) {
-			if(distanceArray[i] != Integer.MAX_VALUE) {
-				fileScores.put(Combocheck.PairOrdering.get(i), distanceArray[i]);
-			}
+			pairScores.put(Combocheck.PairOrdering.get(i), distanceArray[i]);
 		}
 	}
 	
@@ -211,7 +209,7 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 				int idx1 = Combocheck.FilePairInts[index << 1];
 				int idx2 = Combocheck.FilePairInts[(index << 1) + 1];
 				if(ASTroots[idx1] == null || ASTroots[idx2] == null) {
-					distanceArray[index] = Integer.MAX_VALUE;
+					distanceArray[index] = 2;
 					continue; // Infinite distance if no compile
 				}
 				String str1 = CanonicalNames[idx1];
