@@ -358,6 +358,10 @@ public class ReviewPanel extends JPanel {
 		// Retrieve and sort the pairs
 		List<Map.Entry<FilePair, Integer>> scores =
 				new ArrayList<Map.Entry<FilePair, Integer>>();
+		// TODO fix race condition causing concurrentmodificationexception
+		// it's caused by this function running while the java parts of the
+		// algorithms constructs the hashmap from the return value from JNI or
+		// native code
 		for(Map.Entry<FilePair, Integer> e : a.getPairScores().entrySet()) {
 			scores.add(e);
 		}

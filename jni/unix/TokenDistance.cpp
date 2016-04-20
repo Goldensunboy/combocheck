@@ -28,7 +28,7 @@ static void *do_token_preprocessing(void *data) {
 	jvm->AttachCurrentThread((void**) &env, NULL);
 
 	// Starting index in the striped fingerprint array computation
-	while(idx < file_count) {
+	while(!halt && idx < file_count) {
 
 		// Get the tokens via the LanguageUtils class
 		char *fname = file_names[idx];
@@ -63,7 +63,7 @@ static void *do_token_difference(void *data) {
 
 	// Starting index in the striped fingerprint array computation
 	int idx = *(int*) data;
-	while(idx < pair_count) {
+	while(!halt && idx < pair_count) {
 
 		// Get the file pair arrays
 		int idx1 = file_pairs[idx << 1];
@@ -98,7 +98,7 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNITokenDistan
 
 	// Initialize the arrays for calculating differences
 	pair_diffs = (int*) malloc(sizeof(int) * pair_count);
-	token_arrs = (int**) malloc(sizeof(int*) * file_count);
+	token_arrs = (int**) calloc(file_count, sizeof(int*));
 	token_lens = (int*) malloc(sizeof(int) * file_count);
 
 	// Create global references for callback parameters
@@ -147,7 +147,9 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNITokenDistan
 
 	// Clean up
 	for(int i = 0; i < file_count; ++i) {
-		free(token_arrs[i]);
+		if(token_arrs[i]) {
+			free(token_arrs[i]);
+		}
 	}
 	free(token_lens);
 	free(token_arrs);

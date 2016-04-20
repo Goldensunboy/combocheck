@@ -138,6 +138,7 @@ public class EditDistanceAlgorithm extends Algorithm {
 	 */
 	@Override
 	public void analyzeFiles() {
+		processing = true;
 		int[] distanceArray;
 		
 		// Use the JNI implementation if it is available
@@ -193,6 +194,7 @@ public class EditDistanceAlgorithm extends Algorithm {
 		for(int i = 0; i < distanceArray.length; ++i) {
 			pairScores.put(Combocheck.PairOrdering.get(i), distanceArray[i]);
 		}
+		processing = false;
 	}
 	
 	/**
@@ -227,7 +229,7 @@ public class EditDistanceAlgorithm extends Algorithm {
 		@Override
 		public void run() {
 			int fileCount = Combocheck.FileList.size();
-			for(int index = initialIndex; index < fileCount;
+			for(int index = initialIndex; !halt && index < fileCount;
 					index += Combocheck.ThreadCount) {
 				
 				// Normalize the file
@@ -282,7 +284,7 @@ public class EditDistanceAlgorithm extends Algorithm {
 		@Override
 		public void run() {
 			int pairCount = Combocheck.FilePairs.size();
-			for(int index = initialIndex; index < pairCount;
+			for(int index = initialIndex; !halt && index < pairCount;
 					index += Combocheck.ThreadCount) {
 				
 				// Get the normalized file strings

@@ -92,7 +92,7 @@ public class Combocheck {
 			JNIFunctions.JNIClearChecksCompleted();
 			JNIFunctions.SetJNIThreads(ThreadCount);
 		} else {
-			Algorithm.checksCompleted = 0;
+			Algorithm.setChecksCompleted(0);
 		}
 		new ScanThread().start();
 		
@@ -104,9 +104,10 @@ public class Combocheck {
 	
 	/**
 	 * This function will cancel a running scan.
+	 * @param numScans Number of scans to complete
 	 */
-	public static void CancelScan() {
-		// TODO this will be tricky since Thread.stop() is deprecated
+	public static void CancelScan(int numScans) {
+		Algorithm.HaltAnalysis(numScans);
 	}
 	
 	/**

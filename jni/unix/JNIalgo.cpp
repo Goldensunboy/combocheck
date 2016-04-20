@@ -18,6 +18,7 @@ pthread_mutex_t progress_mutex;
 int completed;
 const char *current_check;
 int checks_completed;
+unsigned char halt = 0;
 
 // Variables for file lists accessible to algorithms
 int file_count;
@@ -226,4 +227,9 @@ JNIEXPORT void JNICALL Java_com_combocheck_algo_JNIFunctions_JNIClearChecksCompl
 JNIEXPORT jint JNICALL Java_com_combocheck_algo_JNIFunctions_JNIPollChecksCompleted(
 		JNIEnv *env, jclass cls) {
 	return (jint) checks_completed;
+}
+
+JNIEXPORT void JNICALL Java_com_combocheck_algo_JNIFunctions_JNISetHalt(
+		JNIEnv *env, jclass cls, jboolean _halt) {
+	halt = (unsigned char) _halt;
 }

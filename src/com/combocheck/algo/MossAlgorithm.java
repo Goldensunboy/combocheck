@@ -188,6 +188,7 @@ public class MossAlgorithm extends Algorithm {
 	 */
 	@Override
 	public void analyzeFiles() {
+		processing = true;
 		int[] scoreArray;
 		
 		// Use the JNI implementation if it is available
@@ -245,6 +246,7 @@ public class MossAlgorithm extends Algorithm {
 		for(int i = 0; i < scoreArray.length; ++i) {
 			pairScores.put(Combocheck.PairOrdering.get(i), scoreArray[i]);
 		}
+		processing = false;
 	}
 	
 	/**
@@ -279,7 +281,7 @@ public class MossAlgorithm extends Algorithm {
 		@Override
 		public void run() {
 			int fileCount = Combocheck.FileList.size();
-			for(int index = initialIndex; index < fileCount;
+			for(int index = initialIndex; !halt && index < fileCount;
 					index += Combocheck.ThreadCount) {
 				String fileString = LanguageUtils.GetNormalizedFile(
 						Combocheck.FileOrdering.get(index), Normalization);
@@ -376,7 +378,7 @@ public class MossAlgorithm extends Algorithm {
 		@Override
 		public void run() {
 			int pairCount = Combocheck.FilePairs.size();
-			for(int index = initialIndex; index < pairCount;
+			for(int index = initialIndex; !halt && index < pairCount;
 					index += Combocheck.ThreadCount) {
 				
 				// Get the data arrays

@@ -1,6 +1,5 @@
 package com.combocheck.algo;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
@@ -19,11 +18,13 @@ import com.combocheck.global.FilePair;
 public abstract class Algorithm {
 	
 	/** Global progress information */
-	protected static int progress = Integer.MAX_VALUE;
+	protected static int progress = 0;
 	protected static int completed;
 	private static String currentCheck = "";
 	public static Semaphore progressMutex = new Semaphore(1);
-	public static int checksCompleted;
+	protected static int checksCompleted;
+	protected static boolean processing = false;
+	protected static boolean halt = false;
 	
 	/** Whether or not this algorithm is enabled */
 	protected boolean enabled;
@@ -61,6 +62,52 @@ public abstract class Algorithm {
 	 */
 	public static String GetCurrentCheck() {
 		return currentCheck;
+	}
+	
+	/**
+	 * Tells if an algorithm is currently processing
+	 * @return
+	 */
+	public static boolean isProcessing() {
+		return processing;
+	}
+	
+	/**
+	 * Return the number of checks that have been completed by the scan
+	 * @return How many checks have been completed
+	 */
+	public static int getChecksCompleted() {
+		return checksCompleted;
+	}
+	
+	/**
+	 * Set the number of checks completed (usually to zero)
+	 * @param checksCompleted Number of checks
+	 */
+	public static void setChecksCompleted(int checksCompleted) {
+		Algorithm.checksCompleted = checksCompleted;
+	}
+	
+	/**
+	 * Halt the analysis.
+	 * @param numScans Number of scans that must complete to cleanly exit
+	 */
+	public static void HaltAnalysis(int numScans) {
+		// JNI or java implementation we are halting
+		if(JNIFunctions.JNIEnabled()) {
+			JNIFunctions.JNISetHalt(true);
+			while(JNIFunctions.JNIPollChecksCompleted() < numScans ||
+					processing) {
+				Thread.yield();
+			}
+			JNIFunctions.JNISetHalt(false);
+		} else {
+			halt = true;
+			while(checksCompleted < numScans || processing) {
+				Thread.yield();
+			}
+			halt = false;
+		}
 	}
 	
 	/**

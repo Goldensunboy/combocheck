@@ -29,7 +29,7 @@ static void *do_moss_preprocessing(void *data) {
 	jvm->AttachCurrentThread((void**) &env, NULL);
 
 	// Starting index in the striped fingerprint array computation
-	while(idx < file_count) {
+	while(!halt && idx < file_count) {
 
 		// Get the normalized file contents from the LanguageUtils class
 		char *fname = file_names[idx];
@@ -66,7 +66,7 @@ static void *do_moss_difference(void *data) {
 
 	// Starting index in the striped fingerprint array computation
 	int idx = *(int*) data;
-	while(idx < pair_count) {
+	while(!halt && idx < pair_count) {
 
 		// Get the file pair arrays
 		int idx1 = file_pairs[idx << 1];

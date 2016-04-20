@@ -30,7 +30,7 @@ static void *do_ed_preprocessing(void *data) {
 	jvm->AttachCurrentThread((void**) &env, NULL);
 
 	// Starting index in the striped fingerprint array computation
-	while(idx < file_count) {
+	while(!halt && idx < file_count) {
 
 		// Get the normalized file contents from the LanguageUtils class
 		char *fname = file_names[idx];
@@ -67,7 +67,7 @@ static void *do_ed_difference(void *data) {
 
 	// Starting index in the striped distance array computation
 	int idx = *(int*) data;
-	while(idx < pair_count) {
+	while(!halt && idx < pair_count) {
 
 		// Get the buffers for the files for the edit distance calculation
 		int idx1 = file_pairs[idx << 1];
@@ -114,7 +114,7 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIEditDistanc
 
 	// The array for the file pair metrics
 	pair_distances = (int*) malloc(sizeof(int) * pair_count);
-	normalized_files = (char**) malloc(sizeof(char*) * file_count);
+	normalized_files = (char**) calloc(file_count, sizeof(char*));
 	file_lens = (int*) malloc(sizeof(int) * file_count);
 
 	// Initialize thread pool
@@ -160,7 +160,9 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIEditDistanc
 	free(threads);
 	free(pair_distances);
 	for(int i = 0; i < file_count; ++i) {
-		free(normalized_files[i]);
+		if(normalized_files[i]) {
+			free(normalized_files[i]);
+		}
 	}
 	free(normalized_files);
 	free(file_lens);

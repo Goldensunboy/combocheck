@@ -75,6 +75,12 @@ public final class JNIFunctions {
 	public static native String GetJNICurrentCheck();
 	
 	/**
+	 * Set the state of the halt variable in the native library
+	 * @param halt
+	 */
+	public static native void JNISetHalt(boolean halt);
+	
+	/**
 	 * Edit distance implementation
 	 * @return Metrics per pair
 	 */
@@ -87,12 +93,6 @@ public final class JNIFunctions {
 	 * @return Metrics per pair
 	 */
 	public static native int[] JNIMoss();
-	
-	/**
-	 * AST distance implementation
-	 * @return Metrics per pair
-	 */
-	public static native int[] JNIASTDistance();
 	
 	/**
 	 * AST distance implementation

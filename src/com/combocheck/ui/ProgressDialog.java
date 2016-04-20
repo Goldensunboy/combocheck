@@ -49,7 +49,7 @@ public class ProgressDialog extends JDialog implements ActionListener {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent event) {
-				Combocheck.CancelScan();
+				Combocheck.CancelScan(bars.size());
 				tm.stop();
 				dispose();
 			}
@@ -83,7 +83,7 @@ public class ProgressDialog extends JDialog implements ActionListener {
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Combocheck.CancelScan();
+				Combocheck.CancelScan(bars.size());
 				tm.stop();
 				dispose();
 			}
@@ -126,7 +126,7 @@ public class ProgressDialog extends JDialog implements ActionListener {
 				return;
 			}
 			msg = Algorithm.GetCurrentCheck();
-			checksCompleted = Algorithm.checksCompleted;
+			checksCompleted = Algorithm.getChecksCompleted();
 		}
 		
 		// Don't do anything if progress hasn't changed
@@ -145,6 +145,9 @@ public class ProgressDialog extends JDialog implements ActionListener {
 				tm.stop();
 				dispose();
 				CombocheckTabbedPane ctb = Combocheck.Frame.getTabbedPane();
+				while(Algorithm.isProcessing()) {
+					Thread.yield();
+				}
 				ctb.getReviewPanel().populatePanel();
 				ctb.switchToReviewPanel();
 				return;

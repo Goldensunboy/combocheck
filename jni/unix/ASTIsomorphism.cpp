@@ -69,7 +69,7 @@ static void *do_iso_preprocessing(void *data) {
 	jvm->AttachCurrentThread((void**) &env, NULL);
 
 	// Starting index in the striped fingerprint array computation
-	while(idx < file_count) {
+	while(!halt && idx < file_count) {
 
 		// Get the AST via the LanguageUtils class
 		char *fname = file_names[idx];
@@ -100,13 +100,22 @@ static void *do_iso_difference(void *data) {
 
 	// Starting index in the striped fingerprint array computation
 	int idx = *(int*) data;
-	while(idx < pair_count) {
+	while(!halt && idx < pair_count) {
 
 		// Get the file pair arrays
 		int idx1 = file_pairs[idx << 1];
 		int idx2 = file_pairs[(idx << 1) + 1];
 		char *cname1 = canonical_names[idx1];
 		char *cname2 = canonical_names[idx2];
+
+		if(!strcmp("/home/andrew/Documents/Spring_2016/CS 2110/HW10/"
+				"Kim, Eugene/deque.c", file_names[idx1]) && !strcmp(
+				"/home/andrew/Documents/Spring_2016/CS 2110/HW10/"
+				"Lai, Timothy S/deque.c", file_names[idx2])) {
+			printf("%s\n", cname1);
+			printf("%s\n", cname2);
+			fflush(stdout);
+		}
 
 		// Compute the difference
 		if(cname1 && cname2) {
@@ -136,7 +145,7 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIASTIsomorph
 	current_check = "AST isomorphism preprocessing";
 
 	// Initialize the arrays for calculating differences
-	canonical_names = (char**) malloc(sizeof(char*) * file_count);
+	canonical_names = (char**) calloc(file_count, sizeof(char*));
 	pair_diffs = (int*) malloc(sizeof(int) * pair_count);
 
 	// Create global references for callback parameters
@@ -189,7 +198,9 @@ JNIEXPORT jintArray JNICALL Java_com_combocheck_algo_JNIFunctions_JNIASTIsomorph
 
 	// Clean up
 	for(int i = 0; i < file_count; ++i) {
-		free(canonical_names[i]);
+		if(canonical_names[i]) {
+			free(canonical_names[i]);
+		}
 	}
 	free(canonical_names);
 	free(threads);
