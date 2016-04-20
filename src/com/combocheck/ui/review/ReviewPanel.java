@@ -1,11 +1,9 @@
 package com.combocheck.ui.review;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,6 +42,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * 
  * @author Andrew Wilder
  */
+@SuppressWarnings("serial")
 public class ReviewPanel extends JPanel {
 
 	/** Constants for the scan panel */

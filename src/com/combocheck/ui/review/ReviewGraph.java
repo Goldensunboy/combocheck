@@ -8,6 +8,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+
 import java.util.Arrays;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ import com.combocheck.global.FilePair;
  * 
  * @author Andrew Wilder
  */
+@SuppressWarnings("serial")
 public class ReviewGraph extends JPanel {
 
 	/** Global constants */
@@ -106,7 +108,7 @@ public class ReviewGraph extends JPanel {
 			g.drawRect(GRAPH_MARGIN, GRAPH_MARGIN, getWidth() -
 					(GRAPH_MARGIN << 1), getHeight() - (GRAPH_MARGIN << 1));
 			
-			// Draw the graph text
+			// Draw the graph legend text
 			g.drawString(algo.toString(), 8, 18);
 			String Xtitle = "Score";
 			String Ytitle = "Frequency";
@@ -148,6 +150,10 @@ public class ReviewGraph extends JPanel {
 				g.drawLine(points[i - 1].x, points[i - 1].y,
 						points[i].x, points[i].y);
 			}
+			
+			// TODO Draw the graph legend
+			
+			// TODO Draw the position of the selected pair
 		}
 	}
 }

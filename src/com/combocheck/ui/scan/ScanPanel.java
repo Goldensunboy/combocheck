@@ -10,6 +10,7 @@ import com.combocheck.global.Combocheck;
  * 
  * @author Andrew Wilder
  */
+@SuppressWarnings("serial")
 public class ScanPanel extends JSplitPane {
 	
 	/** Constants for the scan panel */

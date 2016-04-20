@@ -60,12 +60,17 @@ public class TextNormalizer implements GenericNormalizer {
 		}
 		return sb.toString();
 	}
+	
+	/**
+	 * Unused
+	 */
+	public void clearCachedParseTrees() {
+	}
 
 	/**
 	 * Unused
 	 */
 	@Override
 	public void addErrorMessage(String error) {
-		// TODO Auto-generated method stub
 	}
 }

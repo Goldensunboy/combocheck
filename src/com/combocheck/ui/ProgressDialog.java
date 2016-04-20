@@ -20,6 +20,7 @@ import javax.swing.WindowConstants;
 
 import com.combocheck.algo.Algorithm;
 import com.combocheck.algo.JNIFunctions;
+import com.combocheck.algo.LanguageUtils;
 import com.combocheck.global.Combocheck;
 
 /**
@@ -27,6 +28,7 @@ import com.combocheck.global.Combocheck;
  * 
  * @author Andrew Wilder
  */
+@SuppressWarnings("serial")
 public class ProgressDialog extends JDialog implements ActionListener {
 
 	/** Properties for the progress dialog */
@@ -150,6 +152,7 @@ public class ProgressDialog extends JDialog implements ActionListener {
 				}
 				ctb.getReviewPanel().populatePanel();
 				ctb.switchToReviewPanel();
+				LanguageUtils.ClearParseTreeCache();
 				return;
 			}
 			prevProgress = currProgress;

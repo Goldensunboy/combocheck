@@ -130,4 +130,12 @@ public final class LanguageUtils {
 		}
 		return tokenArr;
 	}
+	
+	/**
+	 * Clear the ParseTree caches for all language normalizers
+	 */
+	public static void ClearParseTreeCache() {
+		CNormalizer.clearCachedParseTrees();
+		JavaNormalizer.clearCachedParseTrees();
+	}
 }

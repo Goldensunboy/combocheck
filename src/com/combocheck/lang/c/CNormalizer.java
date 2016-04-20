@@ -1,14 +1,18 @@
 package com.combocheck.lang.c;
 
 import java.io.IOException;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
@@ -39,11 +43,66 @@ public class CNormalizer extends CBaseListener implements
 	private ANTLRErrorListener errorListener;
 	private Collection<Token> replaceTokens = new ArrayList<Token>();
 	
+	/** Static data related to processing files once */
+	private static Map<String, ParseTree> pmap =
+			new HashMap<String, ParseTree>();
+	private static Map<String, BufferedTokenStream> tmap =
+			new HashMap<String, BufferedTokenStream>();
+	private static Set<String> errorSet = new HashSet<String>();
+	
 	/**
 	 * Construct the normalizer and its attached ANTLRErrorListener
 	 */
 	public CNormalizer() {
 		errorListener = new TokenizationErrorListener(this);
+	}
+	
+	/**
+	 * Get a ParseTree from a filename. It is only done once per scan
+	 * @param filename The file to create a ParseTree from
+	 * @return The ParseTree, or null if there was a parsing error
+	 */
+	private ParseTree getParseTree(String filename) {
+		if(errorSet.contains(filename)) {
+			// If previous processing of file errored, return null
+			return null;
+		} else if(tmap.containsKey(filename)) {
+			// If file has been processed before, return ParseTree
+			return pmap.get(filename);
+		} else {
+			// Preprocess the file
+			String pfile = PreprocessFile(filename);
+			
+			// Parse the file
+			CharStream stream = new ANTLRInputStream(pfile);
+			Lexer lexer = new CLexer(stream);
+			lexer.removeErrorListeners();
+			lexer.addErrorListener(errorListener);
+			BufferedTokenStream tokenStream = new BufferedTokenStream(lexer);
+			CParser parser = new CParser(tokenStream);
+			parser.removeErrorListeners();
+			parser.addErrorListener(errorListener);
+			errorList.clear();
+			ParserRuleContext tree = parser.compilationUnit();
+			tmap.put(filename, tokenStream);
+			if(errorList.size() > 0) {
+				errorSet.add(filename);
+				System.err.println(filename + ": " + errorList.get(0));
+				return null;
+			} else {
+				pmap.put(filename, tree);
+				return tree;
+			}
+		}
+	}
+	
+	/**
+	 * Clear the cached ParseTrees for all files
+	 */
+	public static void clearCachedParseTrees() {
+		pmap.clear();
+		tmap.clear();
+		errorSet.clear();
 	}
 	
 	/**
@@ -109,31 +168,7 @@ public class CNormalizer extends CBaseListener implements
 	 * @return the AST
 	 */
 	public ParseTree CreateAST(String filename) {
-		
-		// Get the preprocessed file
-		String input = PreprocessFile(filename);
-		if(input == null) {
-			// file not found
-			return null;
-		}
-		
-		// Parse the file, renaming identifier tokens
-		CharStream stream = new ANTLRInputStream(input);
-		Lexer lexer = new CLexer(stream);
-		lexer.removeErrorListeners();
-		lexer.addErrorListener(errorListener);
-		BufferedTokenStream tokenStream = new BufferedTokenStream(lexer);
-		CParser parser = new CParser(tokenStream);
-		parser.removeErrorListeners();
-		parser.addErrorListener(errorListener);
-		errorList.clear();
-		ParserRuleContext tree = parser.compilationUnit();
-		if(errorList.size() > 0) {
-			System.err.println(filename + ": " + errorList.get(0));
-			return null;
-		}
-		
-		return tree;
+		return getParseTree(filename);
 	}
 	
 	/**
@@ -142,30 +177,8 @@ public class CNormalizer extends CBaseListener implements
 	 * @return The token list
 	 */
 	public List<Token> GetTokens(String filename) {
-		
-		// Get the preprocessed file
-		String input = PreprocessFile(filename);
-		if(input == null) {
-			// file not found
-			return null;
-		}
-
-		// Parse the file, renaming identifier tokens
-		CharStream stream = new ANTLRInputStream(input);
-		Lexer lexer = new CLexer(stream);
-		lexer.removeErrorListeners();
-		lexer.addErrorListener(errorListener);
-		BufferedTokenStream tokenStream = new BufferedTokenStream(lexer);
-		CParser parser = new CParser(tokenStream);
-		parser.removeErrorListeners();
-		parser.addErrorListener(errorListener);
-		errorList.clear();
-		parser.compilationUnit();
-		if(errorList.size() > 0) {
-			System.err.println(filename + ": " + errorList.get(0));
-		}
-		
-		return tokenStream.getTokens();
+		getParseTree(filename);
+		return tmap.get(filename).getTokens();
 	}
 	
 	/**
@@ -178,39 +191,21 @@ public class CNormalizer extends CBaseListener implements
 	@Override
 	public String CreateNormalizedFile(String filename, NormalizerType ntype) {
 		
-		// Get the preprocessed file
-		String input = PreprocessFile(filename);
-		if(input == null) {
-			// file not found
-			return null;
-		} else if(ntype != NormalizerType.VARIABLES) {
+		// Get the ParseTree if it exists
+		ParseTree tree = getParseTree(filename);
+		if(tree == null) {
 			return new TextNormalizer().CreateNormalizedFile(filename, ntype);
 		}
-		
-		// Parse the file, renaming identifier tokens
-		CharStream stream = new ANTLRInputStream(input);
-		Lexer lexer = new CLexer(stream);
-		lexer.removeErrorListeners();
-		lexer.addErrorListener(errorListener);
-		BufferedTokenStream tokenStream = new BufferedTokenStream(lexer);
-		CParser parser = new CParser(tokenStream);
-		parser.removeErrorListeners();
-		parser.addErrorListener(errorListener);
-		errorList.clear();
-		replaceTokens.clear();
-		ParserRuleContext tree = parser.compilationUnit();
-		if(errorList.size() > 0) {
-			System.err.println(filename + ": " + errorList.get(0));
-			return null;
-		}
+		BufferedTokenStream bts = tmap.get(filename);
 		
 		// Find variable uses to normalize their names
 		new ParseTreeWalker().walk(this, tree);
 		
 		// Convert the token stream into a string, normalize variables
 		String fileText = "";
-		for(Token t : tokenStream.getTokens()) {
-			if(t.getType() == CParser.Identifier && replaceTokens.contains(t)) {
+		for(Token t : bts.getTokens()) {
+			if(ntype == NormalizerType.VARIABLES && t.getType() ==
+					CParser.Identifier && replaceTokens.contains(t)) {
 				fileText += GenericNormalizer.NORMALIZED_IDENTIFIER;
 			} else if(t.getType() != CParser.EOF) {
 				fileText += t.getText();
