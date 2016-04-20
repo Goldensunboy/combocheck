@@ -18,15 +18,24 @@ static jclass LanguageUtils, ParseTree;
 static jmethodID GetAST, getChildCount, getChild;
 static JavaVM *jvm;
 
+// Used to pair a string with its length for faster preprocessing
+struct name_t {
+	char *str;
+	int len;
+};
+
+// Compare two name structs lexicographically
+static int name_comp(const void *data1, const void *data2) {
+	struct name_t *n1 = (struct name_t*) data1;
+	struct name_t *n2 = (struct name_t*) data2;
+	return strcmp(n1->str, n2->str);
+}
+
 // Recursively create a canonical name from an AST
 static char *get_canonical_name(JNIEnv *env, jobject node) {
 
 	// Find how many children there are for this node
 	int child_count = (int) env->CallIntMethod(node, getChildCount);
-	struct name_t {
-		char *str;
-		int len;
-	};
 	struct name_t *child_names = (struct name_t*)
 			malloc(sizeof(struct name_t) * child_count);
 	int total_len = 0;
@@ -40,14 +49,13 @@ static char *get_canonical_name(JNIEnv *env, jobject node) {
 	}
 
 	// Sort the canonical names lexicographically
-	qsort(child_names, child_count, sizeof(struct name_t),
-			(int (*)(const void*, const void*)) strcmp);
+	qsort(child_names, child_count, sizeof(struct name_t), name_comp);
 
 	// Construct return string (strcmp sorted them descending)
 	char *ret = (char*) malloc(sizeof(char) * (total_len + 3));
 	ret[0] = '1';
 	char *ptr = ret + 1;
-	for(int i = child_count - 1; i >= 0; --i) {
+	for(int i = 0; i < child_count; ++i) {
 		strcpy(ptr, child_names[i].str);
 		ptr += child_names[i].len;
 		free(child_names[i].str);

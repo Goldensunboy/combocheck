@@ -142,7 +142,7 @@ public class ASTIsomorphismAlgorithm extends Algorithm {
 		}
 		
 		/**
-		 * Perform ast preprocessing on files
+		 * Perform AST preprocessing on files
 		 */
 		@Override
 		public void run() {
