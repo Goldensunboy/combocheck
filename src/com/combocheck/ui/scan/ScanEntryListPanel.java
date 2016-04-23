@@ -32,6 +32,7 @@ import com.combocheck.global.FilePair;
  * 
  * @author Andrew Wilder
  */
+@SuppressWarnings("serial")
 public class ScanEntryListPanel extends JScrollPane {
 
 	/** Visual properties of the scan entry list panel */

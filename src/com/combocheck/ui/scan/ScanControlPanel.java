@@ -26,6 +26,7 @@ import com.combocheck.global.FilePair;
  * 
  * @author Andrew Wilder
  */
+@SuppressWarnings("serial")
 public class ScanControlPanel extends JPanel {
 
 	/** Global scan entry list panel for buttons */

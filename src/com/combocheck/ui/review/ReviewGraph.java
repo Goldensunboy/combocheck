@@ -30,6 +30,7 @@ public class ReviewGraph extends JPanel {
 	/** Global constants */
 	private static final int GRAPH_MARGIN = 25;
 	private static final int COLUMN_GRANULARITY = 200;
+	private static final int TEXT_OFFSET = 5;
 	
 	/** Information pertaining to drawing the graph */
 	private Algorithm algo = null;
@@ -77,12 +78,7 @@ public class ReviewGraph extends JPanel {
 		}
 		dev = Math.sqrt(sum / algo.getPairScores().size());
 		
-		System.out.println("Min: " + min);
-		System.out.println("Max: " + max);
-		System.out.println("Avg: " + avg);
-		System.out.println("Dev: " + dev);
 		repaint();
-		System.out.println("W: " + getWidth() + "\nH: " + getHeight());
 	}
 	
 	/**
@@ -116,17 +112,40 @@ public class ReviewGraph extends JPanel {
 			Rectangle2D Xrect = fm.getStringBounds(Xtitle, g);
 			Rectangle2D Yrect = fm.getStringBounds(Ytitle, g);
 			g.drawString(Xtitle, getWidth() / 2 -(int) (Xrect.getWidth() / 2),
-					getHeight() - GRAPH_MARGIN + (int) Xrect.getHeight() + 5);
+					getHeight() - GRAPH_MARGIN + (int) Xrect.getHeight() +
+					TEXT_OFFSET);
 			Font oldFont = g.getFont();
 			AffineTransform rotation = new AffineTransform();
 			rotation.rotate(-Math.PI / 2);
 			Font rotatedFont = oldFont.deriveFont(rotation);
 			g.setFont(rotatedFont);
-			g.drawString(Ytitle, GRAPH_MARGIN - 5, getHeight() / 2 +
+			g.drawString(Ytitle, GRAPH_MARGIN - TEXT_OFFSET, getHeight() / 2 +
 					(int) (Yrect.getWidth() / 2));
 			g.setFont(oldFont);
 			
+			// Draw the graph legend
+			String minText = "" + min;
+			String maxText = "" + max;
+			Rectangle2D minRect = fm.getStringBounds(minText, g);
+			Rectangle2D maxRect = fm.getStringBounds(maxText, g);
+			g.drawString(minText, GRAPH_MARGIN - (int) (minRect.getWidth() / 2),
+					getHeight() - GRAPH_MARGIN + (int) minRect.getHeight() +
+					TEXT_OFFSET);
+			g.drawString(maxText, getWidth() - GRAPH_MARGIN -
+					(int) (maxRect.getWidth() / 2), getHeight() -
+					GRAPH_MARGIN + (int) maxRect.getHeight() + TEXT_OFFSET);
+			
+			// Draw average line
+			int avgX = (int) ((avg - min) / range * (getWidth() - 2 *
+					GRAPH_MARGIN)) + GRAPH_MARGIN;
+			g.setColor(Color.LIGHT_GRAY);
+			g.drawLine(avgX, GRAPH_MARGIN + 1, avgX, getHeight() -
+					GRAPH_MARGIN - 1);
+			g.drawString("Avg: " + (int) avg, avgX + TEXT_OFFSET, getHeight() -
+					GRAPH_MARGIN - TEXT_OFFSET);
+			
 			// Draw the distribution of scores
+			g.setColor(Color.BLACK);
 			int[] heights = new int[COLUMN_GRANULARITY];
 			Arrays.fill(heights, 0);
 			for(Map.Entry<FilePair, Integer> e :
@@ -143,7 +162,8 @@ public class ReviewGraph extends JPanel {
 			int height = getHeight() - (GRAPH_MARGIN << 1) - 1;
 			Point[] points = new Point[COLUMN_GRANULARITY];
 			for(int i = 0; i < COLUMN_GRANULARITY; ++i) {
-				points[i] = new Point(startX + i * width / COLUMN_GRANULARITY,
+				points[i] = new Point(startX + i * width /
+						(COLUMN_GRANULARITY - 1),
 						startY - heights[i] * height / maxHeight);
 			}
 			for(int i = 1; i < COLUMN_GRANULARITY; ++i) {
@@ -151,9 +171,15 @@ public class ReviewGraph extends JPanel {
 						points[i].x, points[i].y);
 			}
 			
-			// TODO Draw the graph legend
-			
-			// TODO Draw the position of the selected pair
+			// Draw the position of the selected pair
+			g.setColor(Color.RED);
+			int selScore = algo.getPairScores().get(selectedPair);
+			int selX = (int) ((selScore - min) / range * (getWidth() - 2 *
+					GRAPH_MARGIN)) + GRAPH_MARGIN;
+			g.drawLine(selX, GRAPH_MARGIN + 1, selX, getHeight() -
+					GRAPH_MARGIN - 1);
+			g.drawString("Selected: " + selScore, selX + TEXT_OFFSET,
+					getHeight() - GRAPH_MARGIN - TEXT_OFFSET);
 		}
 	}
 }

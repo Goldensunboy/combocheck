@@ -12,6 +12,7 @@ import com.combocheck.global.Combocheck;
  * 
  * @author Andrew Wilder
  */
+@SuppressWarnings("serial")
 public class CombocheckFrame extends JFrame {
 
 	/** The instance of the tabbed pane that this frame holds */

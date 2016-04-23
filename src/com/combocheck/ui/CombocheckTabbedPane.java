@@ -15,6 +15,7 @@ import com.combocheck.ui.scan.ScanPanel;
  * 
  * @author Andrew Wilder
  */
+@SuppressWarnings("serial")
 public class CombocheckTabbedPane extends JTabbedPane {
 	
 	/** Instances of the panels */

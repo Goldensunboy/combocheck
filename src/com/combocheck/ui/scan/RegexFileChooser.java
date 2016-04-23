@@ -19,6 +19,7 @@ import javax.swing.JTextField;
  * 
  * @author Andrew Wilder
  */
+@SuppressWarnings("serial")
 public class RegexFileChooser extends JFileChooser {
 	
 	/** The regex entered by the user */

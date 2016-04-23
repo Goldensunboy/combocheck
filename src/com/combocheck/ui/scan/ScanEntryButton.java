@@ -10,6 +10,7 @@ import javax.swing.JButton;
  * 
  * @author Andrew Wilder
  */
+@SuppressWarnings("serial")
 public class ScanEntryButton extends JButton implements ActionListener {
 
 	/** Global scan entry list for buttons */

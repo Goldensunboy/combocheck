@@ -9,9 +9,6 @@ import java.awt.event.MouseListener;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
 
 import com.combocheck.global.FilePair;
 
@@ -22,6 +19,7 @@ import com.combocheck.global.FilePair;
  * 
  * @author Andrew Wilder
  */
+@SuppressWarnings("serial")
 public class PairEntry extends JPanel {
 
 	/** Global information */
@@ -53,8 +51,14 @@ public class PairEntry extends JPanel {
 		MouseListener clickListener = new MouseListener() {
 			@Override
 			public void mousePressed(MouseEvent arg0) {
-				rp.setSelectedPair(fp);
-				rp.repaint();
+				if(fp.equals(rp.getSelectedPair())) {
+					// Open the comparison dialog
+					new ComparisonDialog(fp).setVisible(true);
+				} else {
+					// Set the selected pair
+					rp.setSelectedPair(fp);
+					rp.repaint();
+				}
 			}
 			@Override
 			public void mouseClicked(MouseEvent arg0) {

@@ -7,6 +7,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +31,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JRadioButton;
@@ -60,6 +63,7 @@ public class ReviewPanel extends JPanel {
 	private JScrollPane pairScrollPane = new JScrollPane(
 			JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 			JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	private JScrollBar scrollPaneBar;
 	private JPanel pairScrollPaneContents = new JPanel();
 	private JLabel selectedPairLabel = new JLabel("");
 	private JLabel selectedFile1Label = new JLabel("");
@@ -73,6 +77,7 @@ public class ReviewPanel extends JPanel {
 	private List<PairEntry> entries = new ArrayList<PairEntry>();
 	private FilePair selectedPair = null;
 	private ReviewGraph graph = new ReviewGraph();
+	private List<Map.Entry<FilePair, Integer>> scores;
 	
 	/**
 	 * Construct the review panel and its components
@@ -88,7 +93,18 @@ public class ReviewPanel extends JPanel {
 		JViewport jvp = new JViewport();
 		jvp.add(pairScrollPaneContents);
 		pairScrollPane.setViewportView(jvp);
-		pairScrollPane.getVerticalScrollBar().setUnitIncrement(6);
+		scrollPaneBar = pairScrollPane.getVerticalScrollBar();
+		scrollPaneBar.setUnitIncrement(6);
+		scrollPaneBar.addAdjustmentListener(new AdjustmentListener() {
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent ae) {
+				if(ae.getValue() + scrollPaneBar.getModel().getExtent() ==
+						scrollPaneBar.getMaximum()) {
+					// TODO this isn't working. should add 50 entries
+					populatePairEntryList();
+				}
+			}
+		});
 		contentPanel.setLeftComponent(pairScrollPane);
 		JPanel controlPanel = new JPanel();
 		controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
@@ -288,6 +304,7 @@ public class ReviewPanel extends JPanel {
 	 */
 	public void setSelectedPair(FilePair fp) {
 		selectedPair = fp;
+		graph.setSelectedPair(fp);
 		for(PairEntry pe : entries) {
 			if(pe.getFilePair().equals(fp)) {
 				selectedPairLabel.setText("Remove pair " + pe.getIndex());
@@ -304,9 +321,6 @@ public class ReviewPanel extends JPanel {
 	 * elements once scanning has completed.
 	 */
 	public void populatePanel() {
-		
-		// TODO remove this in production
-		//Combocheck.printStatistics();
 		
 		// Populate the algorithm selection
 		algoSelectorPanel.removeAll();
@@ -347,6 +361,19 @@ public class ReviewPanel extends JPanel {
 	}
 	
 	/**
+	 * Populates an incremental amount of pair entries
+	 */
+	private void populatePairEntryList() {
+		for(int pairNum = entries.size(), count = 0; pairNum < scores.size() &&
+				count < ENTRY_LIMIT; ++count) {
+			Map.Entry<FilePair, Integer> e = scores.get(pairNum++);
+			PairEntry pe = new PairEntry(e.getKey(), pairNum, e.getValue());
+			pe.setAlignmentX(Component.LEFT_ALIGNMENT);
+			entries.add(pe);
+		}
+	}
+	
+	/**
 	 * This method will repopulate the pair list ordered by the scores produced
 	 * by the selected algorithm
 	 * @param a The algorithm whose scores will order the pair list
@@ -355,15 +382,8 @@ public class ReviewPanel extends JPanel {
 		selectedAlgo = a;
 		
 		// Retrieve and sort the pairs
-		List<Map.Entry<FilePair, Integer>> scores =
-				new ArrayList<Map.Entry<FilePair, Integer>>();
-		// TODO fix race condition causing concurrentmodificationexception
-		// it's caused by this function running while the java parts of the
-		// algorithms constructs the hashmap from the return value from JNI or
-		// native code
-		for(Map.Entry<FilePair, Integer> e : a.getPairScores().entrySet()) {
-			scores.add(e);
-		}
+		scores = new ArrayList<Map.Entry<FilePair, Integer>>(
+				a.getPairScores().entrySet());
 		Collections.sort(scores,
 				new Comparator<Map.Entry<FilePair, Integer>>() {
 			@Override
@@ -376,15 +396,7 @@ public class ReviewPanel extends JPanel {
 		
 		// Create new entries list
 		entries.clear();
-		int pairNum = 1;
-		for(Map.Entry<FilePair, Integer> e : scores) {
-			PairEntry pe = new PairEntry(e.getKey(), pairNum++, e.getValue());
-			pe.setAlignmentX(Component.LEFT_ALIGNMENT);
-			entries.add(pe);
-			if(pairNum > ENTRY_LIMIT) {
-				break;
-			}
-		}
+		populatePairEntryList();
 
 		// Re-initialize the scroll pane housing the pair entries
 		pairScrollPaneContents.removeAll();
