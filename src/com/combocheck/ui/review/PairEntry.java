@@ -2,9 +2,11 @@ package com.combocheck.ui.review;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.Rectangle2D;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -50,14 +52,16 @@ public class PairEntry extends JPanel {
 				getPreferredSize().height));
 		MouseListener clickListener = new MouseListener() {
 			@Override
-			public void mousePressed(MouseEvent arg0) {
-				if(fp.equals(rp.getSelectedPair())) {
-					// Open the comparison dialog
-					new ComparisonDialog(fp).setVisible(true);
-				} else {
-					// Set the selected pair
-					rp.setSelectedPair(fp);
-					rp.repaint();
+			public void mousePressed(MouseEvent me) {
+				if(me.getButton() == MouseEvent.BUTTON1) {
+					if(fp.equals(rp.getSelectedPair())) {
+						// Open the comparison dialog
+						new ComparisonDialog(fp).setVisible(true);
+					} else {
+						// Set the selected pair
+						rp.setSelectedPair(fp);
+						rp.repaint();
+					}
 				}
 			}
 			@Override
@@ -110,6 +114,11 @@ public class PairEntry extends JPanel {
 		if(fp.equals(rp.getSelectedPair())) {
 			g.setColor(Color.RED);
 			g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+			String msg = "Click to compare";
+			FontMetrics fm = g.getFontMetrics();
+			Rectangle2D msgRect = fm.getStringBounds(msg, g);
+			g.drawString(msg, (int) (getWidth() - msgRect.getWidth()) / 2,
+					(int) msgRect.getHeight() + 5);
 		}
 	}
 }

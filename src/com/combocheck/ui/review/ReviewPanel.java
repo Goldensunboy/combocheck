@@ -100,7 +100,6 @@ public class ReviewPanel extends JPanel {
 			public void adjustmentValueChanged(AdjustmentEvent ae) {
 				if(ae.getValue() + scrollPaneBar.getModel().getExtent() ==
 						scrollPaneBar.getMaximum()) {
-					// TODO this isn't working. should add 50 entries
 					populatePairEntryList();
 				}
 			}
@@ -364,13 +363,28 @@ public class ReviewPanel extends JPanel {
 	 * Populates an incremental amount of pair entries
 	 */
 	private void populatePairEntryList() {
+		boolean first = entries.size() == 0;
 		for(int pairNum = entries.size(), count = 0; pairNum < scores.size() &&
 				count < ENTRY_LIMIT; ++count) {
+			
+			// Add a spacer between entries
+			if(first) {
+				first = false;
+			} else {
+				pairScrollPaneContents.add(
+						Box.createVerticalStrut(ENTRY_BORDER_SIZE));
+			}
+			
+			// Create and add the pair entry
 			Map.Entry<FilePair, Integer> e = scores.get(pairNum++);
 			PairEntry pe = new PairEntry(e.getKey(), pairNum, e.getValue());
 			pe.setAlignmentX(Component.LEFT_ALIGNMENT);
 			entries.add(pe);
+			pairScrollPaneContents.add(pe);
 		}
+		
+		// Revalidate the panel so it is redrawn
+		pairScrollPaneContents.revalidate();
 	}
 	
 	/**
@@ -396,22 +410,8 @@ public class ReviewPanel extends JPanel {
 		
 		// Create new entries list
 		entries.clear();
-		populatePairEntryList();
-
-		// Re-initialize the scroll pane housing the pair entries
 		pairScrollPaneContents.removeAll();
-		boolean first = true;
-		for(PairEntry pe : entries) {
-			if(first) {
-				first = false;
-			} else {
-				pairScrollPaneContents.add(
-						Box.createVerticalStrut(ENTRY_BORDER_SIZE));
-			}
-			pairScrollPaneContents.add(pe);
-		}
-		pairScrollPane.revalidate();
-		pairScrollPane.repaint();
+		populatePairEntryList();
 		
 		// Refresh the graph
 		graph.PopulateDataSet(a);

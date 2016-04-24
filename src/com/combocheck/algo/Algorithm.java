@@ -1,7 +1,9 @@
 package com.combocheck.algo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.JComponent;
@@ -225,6 +227,51 @@ public abstract class Algorithm {
 			}
 		}
 		return ret;
+	}
+	
+	/**
+	 * Computes the longest common subsequence of two integer arrays.
+	 * Useful for computing the reverse diff of two files in ComparisonDialog
+	 * Does not match empty lines.
+	 * @param arr1 First array
+	 * @param arr2 Second array
+	 * @return The longest common subsequence of values in arr1 and arr2
+	 */
+	public static Integer[] LongestCommonSubsequence(Integer[] arr1,
+			Integer[] arr2) {
+		
+		// Construct computation matrix
+		int[][] C = new int[arr1.length + 1][arr2.length + 1];
+		Arrays.fill(C[0], 0);
+		for(int i = 1; i < C.length; ++i) {
+			C[i][0] = 0;
+		}
+		
+		// Fill the computation matrix
+		for(int i = 1; i <= arr1.length; ++i) {
+			for(int j = 1; j <= arr2.length; ++j) {
+				if(arr1[i - 1].equals(arr2[j - 1]) && arr1[i - 1] != 0) {
+					C[i][j] = C[i - 1][j - 1] + 1;
+				} else {
+					C[i][j] = Math.max(C[i - 1][j], C[i][j - 1]);
+				}
+			}
+		}
+		
+		// Backtrack and create the reconstructed LCS list
+		List<Integer> LCS = new ArrayList<Integer>();
+		for(int i = arr1.length, j = arr2.length; i > 0 && j > 0;) {
+			if(arr1[i - 1].equals(arr2[j - 1]) && arr1[i - 1] != 0) {
+				LCS.add(0, arr1[i - 1]);
+				--i;
+				--j;
+			} else if(C[i][j - 1] > C[i - 1][j]) {
+				--j;
+			} else {
+				--i;
+			}
+		}
+		return LCS.toArray(new Integer[1]);
 	}
 	
 	/**

@@ -9,6 +9,7 @@ import javax.swing.JPanel;
  * 
  * @author Andrew Wilder
  */
+@SuppressWarnings("serial")
 public class ReportPanel extends JPanel {
 
 	/**

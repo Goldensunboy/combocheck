@@ -17,6 +17,7 @@ import com.combocheck.algo.MossAlgorithm;
 import com.combocheck.algo.TokenDistanceAlgorithm;
 import com.combocheck.ui.CombocheckFrame;
 import com.combocheck.ui.ProgressDialog;
+import com.combocheck.ui.review.ComparisonDialog;
 
 /**
  * This class represents the main executable class of Combocheck.
