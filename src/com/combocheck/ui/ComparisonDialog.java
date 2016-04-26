@@ -1,4 +1,4 @@
-package com.combocheck.ui.review;
+package com.combocheck.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;

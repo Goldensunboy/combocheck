@@ -17,7 +17,8 @@ import com.combocheck.algo.MossAlgorithm;
 import com.combocheck.algo.TokenDistanceAlgorithm;
 import com.combocheck.ui.CombocheckFrame;
 import com.combocheck.ui.ProgressDialog;
-import com.combocheck.ui.review.ComparisonDialog;
+import com.combocheck.ui.report.ReportEntry;
+import com.combocheck.ui.report.ReportPanel;
 
 /**
  * This class represents the main executable class of Combocheck.
@@ -27,12 +28,15 @@ import com.combocheck.ui.review.ComparisonDialog;
  */
 public class Combocheck {
 	
+	/** Version */
+	public static final String VERSION = "1.0.0";
+	
 	/** Algorithms */
 	public static final Algorithm algorithms[] = {
 		new MossAlgorithm(true),
-		new TokenDistanceAlgorithm(false),
+		new TokenDistanceAlgorithm(true),
 		new ASTIsomorphismAlgorithm(true),
-		new EditDistanceAlgorithm(false)
+		new EditDistanceAlgorithm(true)
 	};
 	
 	/** Combocheck constants */
@@ -81,6 +85,7 @@ public class Combocheck {
 			}
 		}
 		JNIFunctions.JNIEnabled(); // Statically pre-loads JNI library
+		VersionChecker.DoVersionCheck();
 	}
 	
 	/**
@@ -131,6 +136,24 @@ public class Combocheck {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Setter on the global level for report entries
+	 * @param entries The entries to set
+	 */
+	public static void setReportEntries(List<ReportEntry> entries) {
+		ReportPanel rp = Frame.getTabbedPane().getReportPanel();
+		rp.setReportEntries(entries);
+	}
+	
+	/**
+	 * Getter on the global level for report entries
+	 * @return A list of the entries
+	 */
+	public static List<ReportEntry> getReportEntries() {
+		ReportPanel rp = Frame.getTabbedPane().getReportPanel();
+		return rp.getReportEntries();
 	}
 	
 	/**

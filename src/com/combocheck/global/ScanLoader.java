@@ -6,10 +6,12 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
 import com.combocheck.algo.Algorithm;
+import com.combocheck.ui.report.ReportEntry;
 
 /**
  * This class contains static helper functions for saving and loading scan
@@ -36,6 +38,7 @@ public class ScanLoader {
 					oos.writeBoolean(false);
 				}
 			}
+			oos.writeObject(Combocheck.getReportEntries());
 			oos.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -62,6 +65,9 @@ public class ScanLoader {
 					a.setEnabled(false);
 				}
 			}
+			@SuppressWarnings("unchecked")
+			List<ReportEntry> entries = (List<ReportEntry>) ois.readObject();
+			Combocheck.setReportEntries(entries);
 			ois.close();
 		} catch(Exception e) {
 			JOptionPane.showMessageDialog(Combocheck.Frame,

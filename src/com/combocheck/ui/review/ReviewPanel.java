@@ -21,6 +21,7 @@ import com.combocheck.algo.Algorithm;
 import com.combocheck.global.Combocheck;
 import com.combocheck.global.FilePair;
 import com.combocheck.global.ScanLoader;
+import com.combocheck.ui.report.ReportPanel;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -68,6 +69,7 @@ public class ReviewPanel extends JPanel {
 	private JLabel selectedPairLabel = new JLabel("");
 	private JLabel selectedFile1Label = new JLabel("");
 	private JLabel selectedFile2Label = new JLabel("");
+	private JLabel reportButtonLabel = new JLabel("");
 	private JButton loadButton, saveButton;
 	private JFileChooser jfc = new JFileChooser();
 	
@@ -82,7 +84,7 @@ public class ReviewPanel extends JPanel {
 	/**
 	 * Construct the review panel and its components
 	 */
-	public ReviewPanel() {
+	public ReviewPanel(final ReportPanel rp) {
 		PairEntry.SetReviewPanel(this);
 		
 		// Set the properties for the split pane
@@ -110,7 +112,6 @@ public class ReviewPanel extends JPanel {
 		contentPanel.setRightComponent(controlPanel);
 		
 		// Construct load and save buttons
-		//jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(
 				"Combocheck scans (scn)", "scn");
 		jfc.setFileFilter(filter);
@@ -134,7 +135,10 @@ public class ReviewPanel extends JPanel {
 				if(result == JFileChooser.APPROVE_OPTION) {
 					String filename = loadFile.getAbsolutePath();
 					ScanLoader.loadScan(filename);
+					
+					// Populate both the review and report panels
 					populatePanel();
+					rp.populatePanel();
 				}
 			}
 		};
@@ -243,9 +247,22 @@ public class ReviewPanel extends JPanel {
 		});
 		removeFile2Panel.add(removeFile2Button);
 		removeFile2Panel.add(selectedFile2Label);
+		JPanel reportButtonPanel = new JPanel(
+				new FlowLayout(FlowLayout.LEADING));
+		JButton reportButton = new JButton("Report");
+		reportButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				rp.addPair(selectedPair);
+				reportButtonLabel.setText("Added pair to report list");
+			}
+		});
+		reportButtonPanel.add(reportButton);
+		reportButtonPanel.add(reportButtonLabel);
 		prunePanel.add(removePairPanel);
 		prunePanel.add(removeFile1Panel);
 		prunePanel.add(removeFile2Panel);
+		prunePanel.add(reportButtonPanel);
 		prunePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,
 				prunePanel.getPreferredSize().height));
 		controlPanel.add(prunePanel);
@@ -298,7 +315,7 @@ public class ReviewPanel extends JPanel {
 	}
 	
 	/**
-	 * Setter for the selected pair
+	 * Setter for the selected pair, also update UI text
 	 * @param fp The pair
 	 */
 	public void setSelectedPair(FilePair fp) {
@@ -306,7 +323,10 @@ public class ReviewPanel extends JPanel {
 		graph.setSelectedPair(fp);
 		for(PairEntry pe : entries) {
 			if(pe.getFilePair().equals(fp)) {
-				selectedPairLabel.setText("Remove pair " + pe.getIndex());
+				selectedPairLabel.setText("Remove pair " + pe);
+				reportButtonLabel.setText("Add pair " + pe +
+						" to reporting list");
+				break;
 			}
 		}
 		selectedFile1Label.setText("Remove all pairs with " +

@@ -24,7 +24,7 @@ public class CombocheckFrame extends JFrame {
 	public CombocheckFrame() {
 		
 		// Set the window properties
-		super(Combocheck.PROGRAM_TITLE);
+		super(Combocheck.PROGRAM_TITLE + " " + Combocheck.VERSION);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override

@@ -5,6 +5,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 
+import com.combocheck.ui.report.ReportEntry;
+
 /**
  * This class represents a file pair which is run through Combocheck
  * 

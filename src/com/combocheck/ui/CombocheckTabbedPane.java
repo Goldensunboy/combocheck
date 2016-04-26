@@ -20,8 +20,8 @@ public class CombocheckTabbedPane extends JTabbedPane {
 	
 	/** Instances of the panels */
 	private ScanPanel scanPanel = new ScanPanel();
-	private ReviewPanel reviewPanel = new ReviewPanel();
 	private ReportPanel reportPanel = new ReportPanel();
+	private ReviewPanel reviewPanel = new ReviewPanel(reportPanel);
 	
 	/**
 	 * Construct the main tabbed pane. This is also where the size of the main

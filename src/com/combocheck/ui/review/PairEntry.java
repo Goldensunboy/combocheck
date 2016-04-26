@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
 import com.combocheck.global.FilePair;
+import com.combocheck.ui.ComparisonDialog;
 
 /**
  * This class represents the pair entries for the review panel. A file pair is
@@ -34,8 +35,9 @@ public class PairEntry extends JPanel {
 	
 	/**
 	 * Construct a new pair entry for the review panel
-	 * @param fp
-	 * @param score
+	 * @param fp The associated file pair object
+	 * @param index The index of this file pair with the selected algorithm
+	 * @param score The score of this file pair with the selected algorithm
 	 */
 	public PairEntry(final FilePair fp, int index, int score) {
 		this.fp = fp;
@@ -99,7 +101,7 @@ public class PairEntry extends JPanel {
 	
 	/**
 	 * Set the static instance of ReviewPanel for finding the selected pair
-	 * @param rp The ReviewPanel instance
+	 * @param rp The static ReviewPanel instance
 	 */
 	public static void SetReviewPanel(ReviewPanel rp) {
 		PairEntry.rp = rp;
@@ -108,6 +110,7 @@ public class PairEntry extends JPanel {
 	/**
 	 * Draw an outline for this panel if it is selected
 	 */
+	@Override
 	public void paintComponent(Graphics g) {
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
@@ -120,5 +123,13 @@ public class PairEntry extends JPanel {
 			g.drawString(msg, (int) (getWidth() - msgRect.getWidth()) / 2,
 					(int) msgRect.getHeight() + 5);
 		}
+	}
+	
+	/**
+	 * Return the index for the represented file pair
+	 */
+	@Override
+	public String toString() {
+		return index + "";
 	}
 }
