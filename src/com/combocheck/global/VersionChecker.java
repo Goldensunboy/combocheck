@@ -1,8 +1,14 @@
 package com.combocheck.global;
 
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -11,9 +17,12 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 /**
  * This class represents the tool for automatically fetching the current version
@@ -24,7 +33,8 @@ import javax.swing.JPanel;
 public final class VersionChecker {
 
 	/** URL for version checking */
-	private static final String CHANGELOG_STRING = "https://github.gatech.edu/raw/awilder6/combocheck/master/CHANGELOG?token=AAAQFR8Y75jcIqTLOF1qcjzUlC6BnAM5ks5XJwO3wA%3D%3D";
+	private static final String CHANGELOG_STRING = "https://github.gatech.edu/raw/awilder6/combocheck/master/CHANGELOG?token=AAAQFRoge8vxbiULevAYUm1acrS8WP1vks5XKFhqwA%3D%3D";
+	private static final String DOWNLOAD_STRING = "https://github.gatech.edu/raw/awilder6/combocheck/master/bin/";
 	private static URL CHANGELOG_URL = null;
 	static {
 		try {
@@ -105,12 +115,11 @@ public final class VersionChecker {
 					// Get how far behind combocheck is
 					int behind = toDateVersion.compareTo(currentVersion);
 					String behindType =
-							toDateVersion.major == currentVersion.major ?
+							toDateVersion.major != currentVersion.major ?
 									"major" :
-							toDateVersion.minor == currentVersion.minor ?
+							toDateVersion.minor != currentVersion.minor ?
 									"minor" : "release";
 					String behindMsg = behind + " " + behindType;
-					System.out.println("This version of combocheck is behind by " + behindMsg + " versions");
 					
 					// Get the versions ahead of this one
 					List<Version> versionLog = new ArrayList<Version>();
@@ -141,6 +150,7 @@ public final class VersionChecker {
 	 * 
 	 * @author Andrew Wilder
 	 */
+	@SuppressWarnings("serial")
 	private static class ChangelogFrame extends JFrame {
 		
 		/**
@@ -156,12 +166,58 @@ public final class VersionChecker {
 			JPanel contentPanel = new JPanel();
 			contentPanel.setLayout(new BoxLayout(
 					contentPanel, BoxLayout.Y_AXIS));
-			JLabel msgLabel = new JLabel(
+			JLabel msgLabel = new JLabel("<html><body>" +
 					"This version of combocheck is behind by " + behindMsg +
-					" version(s).\nChangelog:");
+					" version(s). Changelog:</body></html>");
 			contentPanel.add(msgLabel);
 			
-			// TODO configure the changelog display
+			// Configure the changelog display
+			JTextArea logTextArea = new JTextArea();
+			logTextArea.setEditable(false);
+			JScrollPane logScrollPane = new JScrollPane(logTextArea,
+					JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+					JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			logScrollPane.setPreferredSize(new Dimension(
+					logScrollPane.getPreferredSize().width, 300));
+			String msg = "";
+			boolean first = true;
+			for(Version v : versions) {
+				if(first) {
+					first = false;
+				} else {
+					msg += "\n";
+				}
+				msg += v + "\n";
+				for(String change : v.changes) {
+					msg += "- " + change + "\n";
+				}
+			}
+			logTextArea.setText(msg);
+			contentPanel.add(logScrollPane);
+			
+			// Add a button to open the download page
+			JPanel downloadPanel =
+					new JPanel(new FlowLayout(FlowLayout.LEADING));
+			JButton downloadButton = new JButton("Go to download page");
+			downloadButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					Desktop desktop = Desktop.isDesktopSupported() ?
+							Desktop.getDesktop() : null;
+				    if (desktop != null &&
+				    		desktop.isSupported(Desktop.Action.BROWSE)) {
+				        try {
+				            desktop.browse(new URI(DOWNLOAD_STRING));
+				        } catch (Exception e) {
+				            e.printStackTrace();
+				        }
+				    }
+				}
+			});
+			downloadPanel.add(downloadButton);
+			downloadPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+					downloadPanel.getPreferredSize().height));
+			contentPanel.add(downloadPanel);
 			
 			// Add contents and size the frame appropriately
 			add(contentPanel);
@@ -223,6 +279,13 @@ public final class VersionChecker {
 			} else {
 				return release - v.release;
 			}
+		}
+		
+		/**
+		 * Get the string representation of the version number.
+		 */
+		public String toString()  {
+			return major + "." + minor + "." + release;
 		}
 	}
 }
