@@ -79,7 +79,7 @@ public class Combocheck {
 			Frame.setVisible(true);
 			
 		} else {
-			
+			// TODO add command line ability
 			for(String s : args) {
 				System.out.println(s);
 			}

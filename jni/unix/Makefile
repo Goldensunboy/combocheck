@@ -3,10 +3,8 @@
 LIBNAME = libJNIalgo.so
 SRC = $(wildcard *.cpp)
 OBJ = $(SRC:%.cpp=%.o)
-JAVAHOME = /usr/lib/jvm/java-7-openjdk
-JNIFLAGS = -I"$(JAVAHOME)/include" -I"$(JAVAHOME)/include/linux"
-#CFLAGS = -std=c++11 -fpic -O2
-CFLAGS = -std=c++11 -fpic -g
+JNIFLAGS = -I"${JAVA_HOME}/include" -I"${JAVA_HOME}/include/linux"
+CFLAGS = -std=c++11 -fpic -O2
 LFLAGS = -pthread
 CC = g++
 LD = g++
@@ -14,6 +12,7 @@ LD = g++
 all : JNIheader $(OBJ)
 	@echo "[LD] Linking $(LIBNAME)"
 	@$(CC) -shared -fpic $(JNIFLAGS) -o $(LIBNAME) $(OBJ) $(LFLAGS)
+	@cp $(LIBNAME) ../..
 
 JNIheader :
 	@echo "[HD] Generating JNI header"

@@ -1,11 +1,11 @@
 package com.combocheck.global;
 
 import java.io.Serializable;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
 
-import com.combocheck.ui.report.ReportEntry;
+import java.util.Iterator;
 
 /**
  * This class represents a file pair which is run through Combocheck

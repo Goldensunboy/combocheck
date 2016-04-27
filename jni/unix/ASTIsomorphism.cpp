@@ -116,15 +116,6 @@ static void *do_iso_difference(void *data) {
 		char *cname1 = canonical_names[idx1];
 		char *cname2 = canonical_names[idx2];
 
-		if(!strcmp("/home/andrew/Documents/Spring_2016/CS 2110/HW10/"
-				"Kim, Eugene/deque.c", file_names[idx1]) && !strcmp(
-				"/home/andrew/Documents/Spring_2016/CS 2110/HW10/"
-				"Lai, Timothy S/deque.c", file_names[idx2])) {
-			printf("%s\n", cname1);
-			printf("%s\n", cname2);
-			fflush(stdout);
-		}
-
 		// Compute the difference
 		if(cname1 && cname2) {
 			pair_diffs[idx] = strcmp(cname1, cname2) ? 1 : 0;

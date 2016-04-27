@@ -121,8 +121,8 @@ public class ReportPanel extends JPanel {
 		score1Field.getDocument().addDocumentListener(new DocumentListener() {
 			private void update(DocumentEvent de) {
 				// Update score 1 for selected entry
-				if(selectedEntry != null && Pattern.matches(
-						"\\d+(\\.\\d+)?", score1Field.getText())) {
+				if(selectedEntry != null && Pattern.matches("\\d+(\\.\\d+)?",
+						score1Field.getText())) {
 					selectedEntry.setScore1(Double.parseDouble(
 							score1Field.getText()));
 				}
@@ -143,8 +143,8 @@ public class ReportPanel extends JPanel {
 		score2Field.getDocument().addDocumentListener(new DocumentListener() {
 			private void update(DocumentEvent de) {
 				// Update score 1 for selected entry
-				if(selectedEntry != null && Pattern.matches(
-						"\\d+(\\.\\d+)?", score2Field.getText())) {
+				if(selectedEntry != null && Pattern.matches("\\d+(\\.\\d+)?",
+						score2Field.getText())) {
 					selectedEntry.setScore2(Double.parseDouble(
 							score2Field.getText()));
 				}

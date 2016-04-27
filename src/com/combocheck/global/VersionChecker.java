@@ -6,11 +6,14 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.io.FileNotFoundException;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -34,7 +37,7 @@ public final class VersionChecker {
 
 	/** URL for version checking */
 	private static final String CHANGELOG_STRING = "https://github.gatech.edu/raw/awilder6/combocheck/master/CHANGELOG?token=AAAQFRoge8vxbiULevAYUm1acrS8WP1vks5XKFhqwA%3D%3D";
-	private static final String DOWNLOAD_STRING = "https://github.gatech.edu/raw/awilder6/combocheck/master/bin/";
+	private static final String DOWNLOAD_STRING = "https://github.gatech.edu/awilder6/combocheck/tree/master/bin";
 	private static URL CHANGELOG_URL = null;
 	static {
 		try {
