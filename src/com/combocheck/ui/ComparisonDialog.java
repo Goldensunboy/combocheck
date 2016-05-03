@@ -3,10 +3,9 @@ package com.combocheck.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-
 import java.io.File;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -36,8 +35,8 @@ public class ComparisonDialog extends JDialog {
 	
 	/** Global properties of the comparison dialog */
 	private static final Font CD_FONT = new Font("Courier New", Font.PLAIN, 12);
-	private static final Color MATCH_COLOR = new Color(0xDFFFDF);
-	private static final Color UNIQUE_COLOR = new Color(0xFFDFDF);
+	private static final Color MATCH_COLOR = Color.WHITE;
+	private static final Color UNIQUE_COLOR = new Color(0xFFEFEF);
 	private static final Color EMPTY_COLOR = Color.WHITE;
 
 	/**
@@ -50,57 +49,10 @@ public class ComparisonDialog extends JDialog {
 				fp.getShortenedFile2() + "\"");
 		
 		// Process files
-		List<Integer> hashes1 = new ArrayList<Integer>();
-		List<Integer> hashes2 = new ArrayList<Integer>();
 		List<String> lines1 = new ArrayList<String>();
 		List<String> lines2 = new ArrayList<String>();
-		try {
-			File f1 = new File(fp.getFile1());
-			File f2 = new File(fp.getFile2());
-			Scanner sc = new Scanner(f1);
-			while(sc.hasNext()) {
-				String line = sc.nextLine();
-				hashes1.add(line.replaceAll(" |\t", "").hashCode());
-				lines1.add(line);
-			}
-			sc.close();
-			sc = new Scanner(f2);
-			while(sc.hasNext()) {
-				String line = sc.nextLine();
-				hashes2.add(line.replaceAll(" |\t", "").hashCode());
-				lines2.add(line);
-			}
-			sc.close();
-		} catch(Exception e) {
-			e.printStackTrace();
-			return;
-		}
-		
-		// Perform line commonality calculation
-		Integer[] LCS = Algorithm.LongestCommonSubsequence(
-				hashes1.toArray(new Integer[1]),
-				hashes2.toArray(new Integer[1]));
-		for(int i = 0, idx1 = 0, idx2 = 0; i < LCS.length; ++i) {
-			boolean eq1 = hashes1.get(idx1).equals(LCS[i]);
-			boolean eq2 = hashes2.get(idx2).equals(LCS[i]);
-			while(!eq1 && !eq2) {
-				eq1 = hashes1.get(++idx1).equals(LCS[i]);
-				eq2 = hashes2.get(++idx2).equals(LCS[i]);
-			}
-			if(eq1) {
-				while(!eq2) {
-					hashes1.add(idx1, 0);
-					lines1.add(idx1++, null);
-					eq2 = hashes2.get(++idx2).equals(LCS[i]);
-				}
-			} else {
-				while(!eq1) {
-					hashes2.add(idx2, 0);
-					lines2.add(idx2++, null);
-					eq1 = hashes1.get(++idx1).equals(LCS[i]);
-				}
-			}
-		}
+		Algorithm.ComputeLineMatches(fp.getFile1(), fp.getFile2(),
+				lines1, lines2);
 		
 		// Construct UI
 		JSplitPane splitPane = new JSplitPane(
@@ -143,10 +95,15 @@ public class ComparisonDialog extends JDialog {
 		int digits2 = (int) Math.log10(lines2.size()) + 1;
 		int lineNum1 = 0, lineNum2 = 0;
 		if(lines1.size() != lines2.size()) {
-			System.err.println("Size difference! " + fp);
-			return;
+			System.err.println("Error in line matching calculation: {" +
+					fp.getShortenedFile1() + ", " + fp.getShortenedFile2() +
+					"}\n" +
+					"This shouldn't occur. Let the author of combocheck know!");
+			setModal(false);
+			//return;
 		}
-		for(int i = 0; i < lines1.size(); ++i) {
+		int lineNum = Math.min(lines1.size(), lines2.size());
+		for(int i = 0; i < lineNum; ++i) {
 			String line1 = lines1.get(i);
 			String line2 = lines2.get(i);
 			JLabel label1 = new JLabel();

@@ -1,8 +1,10 @@
 package com.combocheck.ui.report;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -83,12 +85,20 @@ public class ReportPanel extends JPanel {
 			repaint();
 		}
 	};
-	private JTextArea annotationField = new JTextArea();
+	private JTextArea annotationField = new JTextArea() {
+		@Override
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			g.setColor(Color.BLACK);
+			g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+		}
+	};
 	private JTextField score1Field = new JTextField(6);
 	private JLabel score1Label = new JLabel("");
 	private JTextField score2Field = new JTextField(6);
 	private JLabel score2Label = new JLabel("");
 	private JFileChooser jfc = new JFileChooser();
+	private JButton loadButton, saveButton, exportButton;
 	
 	/**
 	 * Construct the report panel and its components
@@ -106,12 +116,90 @@ public class ReportPanel extends JPanel {
 		pairScrollPane.setViewportView(jvp);
 		pairScrollPane.getVerticalScrollBar().setUnitIncrement(6);
 		contentPanel.setLeftComponent(pairScrollPane);
-		JPanel annotationPanel = new JPanel();
-		annotationPanel.setLayout(
-				new BoxLayout(annotationPanel, BoxLayout.Y_AXIS));
-		contentPanel.setRightComponent(annotationPanel);
+		JPanel controlPanel = new JPanel();
+		controlPanel.setLayout(
+				new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
+		contentPanel.setRightComponent(controlPanel);
+		
+		// Configure the save/load buttons
+		loadButton = new JButton("Load scan");
+		loadButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				int result = -1;
+				File loadFile = null;
+				// Show dialog until selected file exists, or user cancels
+				do {
+					if(result == JFileChooser.APPROVE_OPTION) {
+						JOptionPane.showMessageDialog(Combocheck.Frame,
+								"File \"" + loadFile.getName() +
+								"\" doesn't exist", "Error loading file",
+								JOptionPane.ERROR_MESSAGE);
+					}
+					result = jfc.showOpenDialog(Combocheck.Frame);
+					loadFile = jfc.getSelectedFile();
+				} while(result == JFileChooser.APPROVE_OPTION &&
+						!loadFile.exists());
+				if(result == JFileChooser.APPROVE_OPTION) {
+					String filename = loadFile.getAbsolutePath();
+					ScanLoader.loadScan(filename);
+					
+					// Populate both the review and report panels
+					populatePanel();
+					Combocheck.Frame.getTabbedPane().getReviewPanel().
+							populatePanel();
+				}
+			}
+		});
+		saveButton = new JButton("Save scan");
+		saveButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int result = -1;
+				File saveFile = null;
+				// If selected file exists, keep showing choose file dialog as
+				// long as user presses NO until they press CANCEL or OK
+				do {
+					if(result == JFileChooser.APPROVE_OPTION) {
+						int result2 = JOptionPane.showConfirmDialog(
+								Combocheck.Frame, "File \"" +
+								saveFile.getName() + "\" exists. Overwrite?");
+						if(result2 == JOptionPane.OK_OPTION) {
+							break;
+						} else if(result2 == JOptionPane.CANCEL_OPTION) {
+							return;
+						}
+					}
+					result = jfc.showSaveDialog(Combocheck.Frame);
+					saveFile = jfc.getSelectedFile();
+				} while(result == JFileChooser.APPROVE_OPTION &&
+						saveFile.exists());
+				if(result == JFileChooser.APPROVE_OPTION) {
+					if(!Pattern.matches(".*\\.scn", saveFile.toString())) {
+						saveFile = new File(saveFile + ".scn");
+					}
+					String filename = saveFile.getAbsolutePath();
+					ScanLoader.saveScan(filename);
+				}
+			}
+		});
+		JPanel loadSavePanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		loadSavePanel.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createTitledBorder("Load/Save"),
+				BorderFactory.createEmptyBorder(5,5,5,5)));
+		loadSavePanel.add(saveButton);
+		loadSavePanel.add(loadButton);
+		loadSavePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+				loadSavePanel.getPreferredSize().height));
+		controlPanel.add(loadSavePanel);
 		
 		// Configure annotation fields
+		JPanel annotationPanel = new JPanel();
+		annotationPanel.setLayout(new BoxLayout(annotationPanel,
+				BoxLayout.Y_AXIS));
+		annotationPanel.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createTitledBorder("Annotation"),
+				BorderFactory.createEmptyBorder(5,5,5,5)));
 		JPanel score1Panel = new JPanel(new FlowLayout(FlowLayout.LEADING));
 		JPanel score2Panel = new JPanel(new FlowLayout(FlowLayout.LEADING));
 		score1Panel.add(score1Field);
@@ -191,6 +279,28 @@ public class ReportPanel extends JPanel {
 		annotationPanel.add(score1Panel);
 		annotationPanel.add(score2Panel);
 		annotationPanel.add(annotationField);
+		controlPanel.add(annotationPanel);
+		
+		// Add the export button
+		JPanel exportPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		exportButton = new JButton("Export files and annotations");
+		exportButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser jfc = new JFileChooser();
+				jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				if(jfc.showSaveDialog(Combocheck.Frame) ==
+						JFileChooser.APPROVE_OPTION) {
+					File dir = jfc.getSelectedFile();
+					ReportExporter re = new ReportExporter(dir, entries);
+					re.exportEntries();
+				}
+			}
+		});
+		exportPanel.add(exportButton);
+		exportPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,
+				exportPanel.getPreferredSize().height));
+		controlPanel.add(exportPanel);
 		
 		contentPanel.setDividerLocation((int)
 				(DIVIDER_RATIO * Combocheck.PROGRAM_WIDTH));

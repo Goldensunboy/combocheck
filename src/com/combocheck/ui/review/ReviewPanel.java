@@ -86,7 +86,7 @@ public class ReviewPanel extends JPanel {
 	/**
 	 * Construct the review panel and its components
 	 */
-	public ReviewPanel(final ReportPanel rp) {
+	public ReviewPanel(final ReportPanel reportPanel) {
 		PairEntry.SetReviewPanel(this);
 		
 		// Set the properties for the split pane
@@ -140,7 +140,7 @@ public class ReviewPanel extends JPanel {
 					
 					// Populate both the review and report panels
 					populatePanel();
-					rp.populatePanel();
+					reportPanel.populatePanel();
 				}
 			}
 		};
@@ -255,7 +255,7 @@ public class ReviewPanel extends JPanel {
 		reportButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				rp.addPair(selectedPair);
+				reportPanel.addPair(selectedPair);
 				reportButtonLabel.setText("Added pair to report list");
 			}
 		});

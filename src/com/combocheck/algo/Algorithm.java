@@ -1,9 +1,12 @@
 package com.combocheck.algo;
 
+import java.io.File;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.JComponent;
@@ -237,7 +240,7 @@ public abstract class Algorithm {
 	 * @param arr2 Second array
 	 * @return The longest common subsequence of values in arr1 and arr2
 	 */
-	public static Integer[] LongestCommonSubsequence(Integer[] arr1,
+	private static Integer[] LongestCommonSubsequence(Integer[] arr1,
 			Integer[] arr2) {
 		
 		// Construct computation matrix
@@ -272,6 +275,70 @@ public abstract class Algorithm {
 			}
 		}
 		return LCS.toArray(new Integer[1]);
+	}
+	
+	/**
+	 * Compute line commonality between two files.
+	 * @param fname1 File name for first file
+	 * @param fname2 File name for second file
+	 * @param lines1 Augmented lines output for file 1. The given List should be
+	 *               empty when invoking this function.
+	 * @param lines2 Augmented lines output for file 2. The given List should be
+	 *               empty when invoking this function.
+	 */
+	public static void ComputeLineMatches(String fname1, String fname2,
+			List<String> lines1, List<String> lines2) {
+		
+		// Get the lines and hashes from the file
+		List<Integer> hashes1 = new ArrayList<Integer>();
+		List<Integer> hashes2 = new ArrayList<Integer>();
+		try {
+			File f1 = new File(fname1);
+			File f2 = new File(fname2);
+			Scanner sc = new Scanner(f1);
+			while(sc.hasNext()) {
+				String line = sc.nextLine();
+				hashes1.add(line.replaceAll(" |\t", "").hashCode());
+				lines1.add(line);
+			}
+			sc.close();
+			sc = new Scanner(f2);
+			while(sc.hasNext()) {
+				String line = sc.nextLine();
+				hashes2.add(line.replaceAll(" |\t", "").hashCode());
+				lines2.add(line);
+			}
+			sc.close();
+		} catch(Exception e) {
+			e.printStackTrace();
+			return;
+		}
+		
+		// Perform line commonality calculation
+		Integer[] LCS = Algorithm.LongestCommonSubsequence(
+				hashes1.toArray(new Integer[1]),
+				hashes2.toArray(new Integer[1]));
+		for(int i = 0, idx1 = 0, idx2 = 0; i < LCS.length; ++i) {
+			boolean eq1 = hashes1.get(idx1).equals(LCS[i]);
+			boolean eq2 = hashes2.get(idx2).equals(LCS[i]);
+			while(!eq1 && !eq2) {
+				eq1 = hashes1.get(++idx1).equals(LCS[i]);
+				eq2 = hashes2.get(++idx2).equals(LCS[i]);
+			}
+			if(eq1) {
+				while(!eq2) {
+					hashes1.add(idx1, 0);
+					lines1.add(idx1++, null);
+					eq2 = hashes2.get(++idx2).equals(LCS[i]);
+				}
+			} else {
+				while(!eq1) {
+					hashes2.add(idx2, 0);
+					lines2.add(idx2++, null);
+					eq1 = hashes1.get(++idx1).equals(LCS[i]);
+				}
+			}
+		}
 	}
 	
 	/**
