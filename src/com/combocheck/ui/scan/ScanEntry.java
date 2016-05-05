@@ -1,6 +1,7 @@
 package com.combocheck.ui.scan;
 
 import java.io.File;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;

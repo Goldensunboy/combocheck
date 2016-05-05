@@ -3,11 +3,9 @@ package com.combocheck.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.io.File;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
 import javax.swing.BoxLayout;
 import javax.swing.JDialog;

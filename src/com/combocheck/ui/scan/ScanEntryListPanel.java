@@ -3,7 +3,9 @@ package com.combocheck.ui.scan;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+
 import java.io.File;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;

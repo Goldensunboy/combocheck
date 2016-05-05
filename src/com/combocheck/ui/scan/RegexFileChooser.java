@@ -2,7 +2,9 @@ package com.combocheck.ui.scan;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.io.File;
+
 import java.util.ArrayDeque;
 import java.util.regex.Pattern;
 
