@@ -116,7 +116,7 @@ public class ComparisonDialog extends JDialog {
 			label2.setMaximumSize(maxSizeDim);
 			if(line1 != null) {
 				String stripped2 = line2 == null ? null :
-					line2.replaceAll(" |\t", "");
+						line2.replaceAll(" |\t", "");
 				if(line1.replaceAll(" |\t", "").equals(stripped2)) {
 					label1.setBackground(MATCH_COLOR);
 				} else {
