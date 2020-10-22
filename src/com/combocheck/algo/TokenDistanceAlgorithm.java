@@ -174,8 +174,12 @@ public class TokenDistanceAlgorithm extends Algorithm {
 				int idx2 = Combocheck.FilePairInts[(index << 1) + 1];
 				
 				// Do edit distance
-				distanceArray[index] = Algorithm.EditDistance(
+				if(tokenArr[idx1] == null || tokenArr[idx2] == null) {
+					distanceArray[index] = Integer.MAX_VALUE;
+				} else {
+					distanceArray[index] = Algorithm.EditDistance(
 						tokenArr[idx1], tokenArr[idx2]);
+				}
 				
 				// Update progress
 				try {

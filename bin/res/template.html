@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- $CREDIT -->
+
+	<head>
+		<title>$TITLE</title>
+		<style>
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				table-layout: fixed;
+			}
+			table, tr, td {
+				border: 1px solid black;
+			}
+			div {
+				overflow: scroll;
+				overflow-y: hidden;
+			}
+			p {
+				white-space: nowrap;
+				margin-top: 0em;
+				margin-bottom: 0em;
+				line-height: 100%;
+				font-family: courier new;
+			}
+			p.match {
+				background-color: #FFFFFF;
+			}
+			p.unique {
+				background-color: #FFEFEF;
+			}
+			p.empty {
+				background-color: #FFFFFF;
+			}
+		</style>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td colspan=2>Comments:<br>$COMMENTS</td>
+			</tr>
+			<tr>
+				<td>$FILE1</td>
+				<td>$FILE2</td>
+			</tr>
+			<tr>
+				<td>Score: $SCORE1</td>
+				<td>Score: $SCORE2</td>
+			</tr>
+			<tr>
+				<td><div>
+$LINES1
+				</div></td>
+				<td><div>
+$LINES2
+				</div></td>
+			</tr>
+		</table>
+	</body>
+</html>

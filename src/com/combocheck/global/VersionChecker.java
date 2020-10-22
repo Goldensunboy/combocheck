@@ -36,8 +36,8 @@ import javax.swing.JTextArea;
 public final class VersionChecker {
 
 	/** URL for version checking */
-	private static final String CHANGELOG_STRING = "https://github.gatech.edu/raw/awilder6/combocheck/master/CHANGELOG?token=AAAQFRoge8vxbiULevAYUm1acrS8WP1vks5XKFhqwA%3D%3D";
-	private static final String DOWNLOAD_STRING = "https://github.gatech.edu/awilder6/combocheck/tree/master/bin";
+	private static final String CHANGELOG_STRING = "https://raw.githubusercontent.com/Goldensunboy/combocheck/master/CHANGELOG";
+	private static final String DOWNLOAD_STRING = "https://raw.githubusercontent.com/Goldensunboy/combocheck/tree/master/bin";
 	private static URL CHANGELOG_URL = null;
 	static {
 		try {
